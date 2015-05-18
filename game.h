@@ -1,0 +1,103 @@
+#ifndef GAME_H
+#define GAME_H
+#include "mainwindow.h"
+#include <QWidget>
+#include <QApplication>
+#include <QtGui>
+#include <QtCore>
+#include <QDesktopWidget>
+#include <QKeyEvent>
+#include <QWidget>
+#include <time.h>
+#include <QTime>
+#include <QLabel>
+#include <QPushButton>
+#include <QFont>
+#include <QGridLayout>
+#include <QObject>
+#include <QMessageBox>
+#include <QMenuBar>
+#include <QLCDNumber>
+#include <QPixmap>
+#include <QDialog>
+#include <QLineEdit>
+#include <QMediaPlayer>
+
+class game : public QWidget
+{
+    Q_OBJECT
+public:
+    explicit game(QWidget *parent = 0);
+    ~game();
+    void game_start();
+    void set_check();
+    void random_generate();
+    void select_pic();
+    void elapse();
+    void set_a(int b);
+    void judge();
+    void getmain(MainWindow &w);
+    void random_generate_for_begin();
+
+protected:
+    void resizeEvent(QResizeEvent *event);
+    void keyPressEvent(QKeyEvent *event);
+signals:
+
+public slots:
+    void button_quit_click();
+    void button_start_click();
+    void restart();
+    void quit();
+    void restart_for_menu();
+    void change_model();
+private:
+    MainWindow *window;
+    QImage image;
+    int check[40];
+    QLabel *label_1;
+    QLabel *label_2;
+    QLabel *label_3;
+    QLabel *label_4;
+    QLabel *label_1_2;
+    QLabel *label_2_3;
+    QLabel *label_3_4;
+    QLabel *label_1_5;
+    QLabel *label_2_6;
+    QLabel *label_3_7;
+    QLabel *label_4_8;
+    QLabel *label_5;
+    QLabel *label_6;
+    QLabel *label_7;
+    QLabel *label_8;
+    QLabel *label_5_6;
+    QLabel *label_6_7;
+    QLabel *label_7_8;
+    QLabel *label_5_9;
+    QLabel *label_6_10;
+    QLabel *label_7_11;
+    QLabel *label_8_12;
+    QLabel *label_9;
+    QLabel *label_10;
+    QLabel *label_11;
+    QLabel *label_12;
+    QLabel *label_9_10;
+    QLabel *label_10_11;
+    QLabel *label_11_12;
+    QLabel *label_9_13;
+    QLabel *label_10_14;
+    QLabel *label_11_15;
+    QLabel *label_12_16;
+    QLabel *label_13;
+    QLabel *label_14;
+    QLabel *label_15;
+    QLabel *label_16;
+    QLabel *label_13_14;
+    QLabel *label_14_15;
+    QLabel *label_15_16;
+    int a;
+    QDialog *end;
+    QLineEdit *text_name;
+};
+
+#endif // GAME_H
