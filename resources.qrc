@@ -1,0 +1,22 @@
+<RCC>
+    <qresource prefix="/background">
+        <file>base.png</file>
+        <file>back.jpg</file>
+        <file>base_0.png</file>
+        <file>base_4.png</file>
+        <file>base_2.png</file>
+        <file>base_8.png</file>
+        <file>base_16.png</file>
+        <file>base_32.png</file>
+        <file>base_64.png</file>
+        <file>base_128.png</file>
+        <file>base_256.png</file>
+        <file>base_512.png</file>
+        <file>base_1024.png</file>
+        <file>base_2048.png</file>
+        <file>base_4096.png</file>
+        <file>base_8192.png</file>
+        <file>base_16384.png</file>
+        <file>warning.jpg</file>
+    </qresource>
+</RCC>
