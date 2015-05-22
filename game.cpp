@@ -5,13 +5,18 @@ game::game(QWidget *parent) : QWidget(parent)
     QFont f;
     QLabel *title=new QLabel;
     title->setText("<h2><font color=red><center>2048</center></font></h2>");
-    f.setPointSize(40);
+    f.setPointSize(60);
+    f.setFamily("French Script MT");
     title->setFont(f);
+    QFont g;
+    g.setFamily("Jokerman");
     QPushButton *button_start=new QPushButton;
     button_start->setText("START");
+    button_start->setFont(g);
     connect(button_start,SIGNAL(clicked()),this,SLOT(button_start_click()));
     QPushButton *button_quit=new QPushButton;
     button_quit->setText("QUIT");
+    button_quit->setFont(g);
     connect(button_quit,SIGNAL(clicked()),this,SLOT(button_quit_click()));
 
     image.load(":/back/menu_back.jpg");
@@ -101,6 +106,7 @@ void game::button_start_click()
     s->setText("<b><font color=orange><center>Score</center></font></b>");
     QFont f;
     f.setPointSize(40);
+    f.setFamily("Jokerman");
     s->setFont(f);
 
     QString path=":/back/base_0.png";
@@ -201,6 +207,10 @@ void game::game_start()
     set_check();
     set_a(0);
     random_generate_for_begin();
+    this->setFocus();
+/*    QMediaPlayer*b=new QMediaPlayer;
+    b->setMedia(QUrl("qrc:/music/back_music.mp3"));
+    b->play();*/
 
 }
 
@@ -485,10 +495,236 @@ void game::random_generate()
 
 void game::keyPressEvent(QKeyEvent *event)
 {
+    int i,repeat=0,count=0,time=0,result[16]={0};
+    for(i=0;i<16;i++)
+        result[i]=check[i];
     if(event->key()==Qt::Key_Up)
     {
-
+        for(i=0;i<4;i++)
+        {
+            int number[4]={0},total=0;
+            for(int j=i;j<16;j+=4)
+            {
+                if(result[j]!=0)
+                {
+                    number[total]=result[j];
+                    total++;
+                }
+            }
+            for(int j=i,k=0;k<total;j+=4,k++)
+                result[j]=number[k];
+            for(int j=i+12,k=0;k<4-total;j-=4,k++)
+                result[j]=0;
+        }
+        for(i=0;i<4;i++)
+        {
+            if(result[i]!=0&&result[i]==result[i+4])
+            {
+                if(result[i+8]!=0&&result[i+8]==result[i+12])
+                {
+                    result[i]=2*result[i];
+                    result[i+4]=2*result[i+8];
+                    result[i+8]=0;
+                    result[i+12]=0;
+                }
+                else
+                {
+                    result[i]=2*result[i];
+                    result[i+4]=result[i+8];
+                    result[i+8]=result[i+12];
+                    result[i+12]=0;
+                }
+            }
+            else
+            {
+                if(result[i+4]!=0&&result[i+4]==result[i+8])
+                {
+                    result[i+4]*=2;
+                    result[i+8]=result[i+12];
+                    result[i+12]=0;
+                }
+                else
+                {
+                    if(result[i+8]!=0&&result[i+8]==result[i+12])
+                    {
+                        result[i+8]*=2;
+                        result[i+12]=0;
+                    }
+                }
+            }
+        }
+        while(repeat==0)
+        {
+            repeat=1;
+            time++;
+            for(i=0;i<4;i++)
+            {
+                if(check[i+4]!=0&&(check[i]==0||(check[i+4]==check[i]&&check[i]!=result[i])))
+                {
+                    check[i+16]=check[i+4];
+                    check[i+4]=0;
+                    repeat=0;
+                    count++;
+                }
+                if(check[i+8]!=0&&(check[i+4]==0||(check[i+8]==check[i+4]&&check[i+4]!=result[i+4])))
+                {
+                    check[i+20]=check[i+8];
+                    check[i+8]=0;
+                    repeat=0;
+                    count++;
+                }
+                if(check[i+12]!=0&&(check[i+8]==0||(check[i+12]==check[i+8]&&check[i+8]!=result[i+8])))
+                {
+                    check[i+24]=check[i+12];
+                    check[i+12]=0;
+                    repeat=0;
+                    count++;
+                }
+            }
+            if(count==0&&time==1)
+                return;
+            elapse();
+            select_pic();
+            for(i=0;i<4;i++)
+            {
+                if(check[i+16]!=0)
+                {
+                    check[i]+=check[i+16];
+                    check[i+16]=0;
+                }
+                if(check[i+20]!=0)
+                {
+                    check[i+4]+=check[i+20];
+                    check[i+20]=0;
+                }
+                if(check[i+24]!=0)
+                {
+                    check[i+8]+=check[i+24];
+                    check[i+24]=0;
+                }
+                elapse();
+                select_pic();
+            }
+        }
+        random_generate();
+        select_pic();
+        judge();
     }
+    else if(event->key()==Qt::Key_Down)
+    {
+        for(i=0;i<4;i++)
+        {
+            int number[4]={0},total=0;
+            for(int j=i+12;j>=0;j-=4)
+            {
+                if(result[j]!=0)
+                {
+                    number[total]=result[j];
+                    total++;
+                }
+            }
+            for(int j=i+12,k=0;k<total;j-=4,k++)
+                result[j]=number[k];
+            for(int j=i,k=0;k<4-total;j+=4,k++)
+                result[j]=0;
+        }
+        for(i=0;i<4;i++)
+        {
+            if(result[i+12]!=0&&result[i+12]==result[i+8])
+            {
+                if(result[i+4]!=0&&result[i+4]==result[i])
+                {
+                    result[i+12]=2*result[i+12];
+                    result[i+8]=2*result[i+4];
+                    result[i+4]=0;
+                    result[i]=0;
+                }
+                else
+                {
+                    result[i+12]=2*result[i+12];
+                    result[i+8]=result[i+4];
+                    result[i+4]=result[i];
+                    result[i]=0;
+                }
+            }
+            else
+            {
+                if(result[i+8]!=0&&result[i+8]==result[i+4])
+                {
+                    result[i+8]*=2;
+                    result[i+4]=result[i];
+                    result[i]=0;
+                }
+                else
+                {
+                    if(result[i+4]!=0&&result[i+4]==result[i])
+                    {
+                        result[i+4]*=2;
+                        result[i]=0;
+                    }
+                }
+            }
+        }
+
+        while(repeat==0)
+        {
+            repeat=1;
+            time++;
+            for(i=0;i<4;i++)
+            {
+                if(check[i+8]!=0&&(check[i+12]==0||(check[i+8]==check[i+12]&&check[i+12]!=result[i+12])))
+                {
+                    check[i+24]=check[i+8];
+                    check[i+8]=0;
+                    repeat=0;
+                    count++;
+                }
+                if(check[i+4]!=0&&(check[i+8]==0||(check[i+4]==check[i+8]&&check[i+8]!=result[i+8])))
+                {
+                    check[i+20]=check[i+4];
+                    check[i+4]=0;
+                    repeat=0;
+                    count++;
+                }
+                if(check[i]!=0&&(check[i+4]==0||(check[i]==check[i+4]&&check[i+4]!=result[i+4])))
+                {
+                    check[i+16]=check[i];
+                    check[i]=0;
+                    repeat=0;
+                    count++;
+                }
+            }
+            if(count==0&&time==1)
+                return;
+            elapse();
+            select_pic();
+            for(i=0;i<4;i++)
+            {
+                if(check[i+24]!=0)
+                {
+                    check[i+12]+=check[i+24];
+                    check[i+24]=0;
+                }
+                if(check[i+20]!=0)
+                {
+                    check[i+8]+=check[i+20];
+                    check[i+20]=0;
+                }
+                if(check[i+16]!=0)
+                {
+                    check[i+4]+=check[i+16];
+                    check[i+16]=0;
+                }
+                elapse();
+                select_pic();
+            }
+        }
+        random_generate();
+        select_pic();
+        judge();
+    }
+    else if(event->key()==Qt::Key_Left);
+
 }
 
 void game::select_pic()
@@ -969,7 +1205,7 @@ void game::elapse()
 {
     QTime t;
     t.start();
-    while(t.elapsed()<80)
+    while(t.elapsed()<20)
         QCoreApplication::processEvents();
 }
 

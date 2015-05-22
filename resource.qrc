@@ -37,5 +37,6 @@
     <qresource prefix="/music">
         <file>warning.mp3</file>
         <file>lose.mp3</file>
+        <file>back_music.mp3</file>
     </qresource>
 </RCC>
