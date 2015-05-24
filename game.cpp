@@ -208,19 +208,24 @@ void game::game_start()
     set_check();
     set_a(0);
     set_score();
+    set_once();
     display_score();
     random_generate_for_begin();
     this->setFocus();
-/*    QMediaPlayer*b=new QMediaPlayer;
+    QMediaPlayer*b=new QMediaPlayer;
     b->setMedia(QUrl("qrc:/music/back_music.mp3"));
-    b->play();*/
-
+    b->play();
 }
 
 void game::set_check()
 {
     for(int i=0;i<40;i++)
         check[i]=0;
+}
+
+void game::set_once()
+{
+    once=0;
 }
 
 void game::random_generate_for_begin()
@@ -503,6 +508,7 @@ void game::keyPressEvent(QKeyEvent *event)
         result[i]=check[i];
     if(event->key()==Qt::Key_Up)
     {
+        this->clearFocus();
         for(i=0;i<4;i++)
         {
             int number[4]={0},total=0;
@@ -590,7 +596,10 @@ void game::keyPressEvent(QKeyEvent *event)
                 }
             }
             if(count==0&&time==1)
+            {
+                this->setFocus();
                 return;
+            }
             elapse();
             select_pic();
             for(i=0;i<4;i++)
@@ -618,9 +627,12 @@ void game::keyPressEvent(QKeyEvent *event)
         random_generate();
         select_pic();
         judge();
+        enough();
+        this->setFocus();
     }
     else if(event->key()==Qt::Key_Down)
     {
+        this->clearFocus();
         for(i=0;i<4;i++)
         {
             int number[4]={0},total=0;
@@ -709,7 +721,10 @@ void game::keyPressEvent(QKeyEvent *event)
                 }
             }
             if(count==0&&time==1)
+            {
+                this->setFocus();
                 return;
+            }
             elapse();
             select_pic();
             for(i=0;i<4;i++)
@@ -737,9 +752,12 @@ void game::keyPressEvent(QKeyEvent *event)
         random_generate();
         select_pic();
         judge();
+        enough();
+        this->setFocus();
     }
     else if(event->key()==Qt::Key_Left)
     {
+        this->clearFocus();
         {
             for(i=0;i<16;i+=4)
             {
@@ -828,7 +846,10 @@ void game::keyPressEvent(QKeyEvent *event)
                     }
                 }
                 if(count==0&&time==1)
+                {
+                    this->setFocus();
                     return;
+                }
                 elapse();
                 select_pic();
                 for(int k=0,i=0;i<16;i+=4,k++)
@@ -856,10 +877,13 @@ void game::keyPressEvent(QKeyEvent *event)
             random_generate();
             select_pic();
             judge();
+            enough();
+            this->setFocus();
         }
     }
     else if(event->key()==Qt::Key_Right)
     {
+        this->clearFocus();
         {
             for(i=0;i<16;i+=4)
             {
@@ -948,7 +972,10 @@ void game::keyPressEvent(QKeyEvent *event)
                     }
                 }
                 if(count==0&&time==1)
+                {
+                    this->setFocus();
                     return;
+                }
                 elapse();
                 select_pic();
                 for(int k=0,i=0;i<16;i+=4,k++)
@@ -976,6 +1003,8 @@ void game::keyPressEvent(QKeyEvent *event)
             random_generate();
             select_pic();
             judge();
+            enough();
+            this->setFocus();
         }
     }
     else
@@ -1460,7 +1489,7 @@ void game::elapse()
 {
     QTime t;
     t.start();
-    while(t.elapsed()<18)
+    while(t.elapsed()<1)
         QCoreApplication::processEvents();
 }
 
@@ -1506,11 +1535,15 @@ void game::judge()
     connect(button_restart,SIGNAL(clicked()),this,SLOT(restart()));
     QPushButton *button_quit=new QPushButton;
     button_quit->setText("Quit");
-    connect(button_quit,SIGNAL(clicked()),this,SLOT(quit()));
+    connect(button_quit,SIGNAL(clicked()),this,SLOT(quit_with_name()));
+    QFont f;
+    f.setFamily("Jokerman");
     QLabel *text_1=new QLabel;
     text_1->setText("<h2><font color=red><center>NO MORE MOVES!!</center></font></h2>");
+    text_1->setFont(f);
     QLabel *text_2=new QLabel;
     text_2->setText("<center>Enter your name</center>");
+    text_2->setFont(f);
     text_name=new QLineEdit;
 
     QGridLayout *layout=new QGridLayout;
@@ -1521,57 +1554,31 @@ void game::judge()
     layout->addWidget(button_quit,3,2,1,2);
     end->setLayout(layout);
     end->exec();
-
 }
 
 void game::restart()
 {
-    /*
     QString s=QString::number(your_score);
     QSqlDatabase db=QSqlDatabase::addDatabase("QSQLITE");
     db.setDatabaseName("Score.dat");
     db.open();
     QSqlQuery query(db);
-    query.prepare("SELECT Score FROM rank WHERE Score = '--'");
-    if(query.exec()==true)
-    {
-        QSqlRecord rec=query.record();
-        for(int i=0;qry.next();i++)
-        {
-            int j=query.value(2);
-            if(j>your_score)
-                continue;
-            else
-            {
-                QString k=QString::number(i+1);
-                query.prepare("UPDATE rank SET Name=text_name, Score=s WHERE Rank=k");
-                query.exec();
-                for(int p=i+1;p<10;p++)
-                {
-                    QString k=QString::number(p+1);
-                    QString name=rec.value(1);
-                    QString num=rec.value(2);
-                    query.prepare("")
-                }
-                query.prepare("INSERT INTO rank (Name,Score) VALUES(text_name,s)");
-            }
-        }
-        query.prepare("INSERT INTO rank(Name,Score) VALUES('text_name','s')");
-    }
-
-
-    db.close();*/
+    QString str="INSERT INTO rank (Name,Score) VALUES('"+ text_name->text()+ "','" + s +"')";
+    query.prepare(str);
+    query.exec();
+    db.close();
     end->close();
     set_check();
     set_score();
+    set_once();
     display_score();
     select_pic();
     random_generate_for_begin();
+    this->setFocus();
 }
 
 void game::quit()
 {
-    qDebug()<<text_name->text();
     QMediaPlayer *warning=new QMediaPlayer;
     warning->setMedia(QUrl("qrc:/music/warning.mp3"));
     warning->play();
@@ -1579,6 +1586,28 @@ void game::quit()
     message.setIconPixmap(QPixmap(":/back/warning.jpg"));
     if(message.exec() == QMessageBox::Yes)
         exit(1);
+}
+
+void game::quit_with_name()
+{
+    QMediaPlayer *warning=new QMediaPlayer;
+    warning->setMedia(QUrl("qrc:/music/warning.mp3"));
+    warning->play();
+    QMessageBox message(QMessageBox::NoIcon,"Quit","<h2>Are you sure you want to quit?</h2>",QMessageBox::Yes | QMessageBox::No);
+    message.setIconPixmap(QPixmap(":/back/warning.jpg"));
+    if(message.exec() == QMessageBox::Yes)
+    {
+        QString s=QString::number(your_score);
+        QSqlDatabase db=QSqlDatabase::addDatabase("QSQLITE");
+        db.setDatabaseName("Score.dat");
+        db.open();
+        QSqlQuery query(db);
+        QString str="INSERT INTO rank (Name,Score) VALUES('"+ text_name->text()+ "','" + s +"')";
+        query.prepare(str);
+        query.exec();
+        db.close();
+        exit(1);
+    }
 }
 
 void game::restart_for_menu()
@@ -1592,9 +1621,11 @@ void game::restart_for_menu()
     {
         set_check();
         set_score();
+        set_once();
         display_score();
         select_pic();
         random_generate_for_begin();
+        this->setFocus();
     }
 }
 
@@ -1621,4 +1652,43 @@ void game::display_score()
 {
     QString s=QString::number(your_score);
     score->display(s);
+}
+
+void game::enough()
+{
+    int back=1;
+    for(int i=0;i<16;i++)
+        if(check[i]==2048)
+            back=0;
+    if(back==1||once==1)
+        return;
+    once=1;
+    QMediaPlayer *win=new QMediaPlayer;
+    win->setMedia(QUrl("qrc:/music/win.mp3"));
+    win->play();
+    end=new QDialog;
+    QPushButton *button_continue=new QPushButton;
+    button_continue->setText("Continue");
+    connect(button_continue,SIGNAL(clicked()),end,SLOT(close()));
+    QPushButton *button_quit=new QPushButton;
+    button_quit->setText("Quit");
+    connect(button_quit,SIGNAL(clicked()),this,SLOT(quit_with_name()));
+    QFont f;
+    f.setFamily("Jokerman");
+    QLabel *text_1=new QLabel;
+    text_1->setText("<h2><font color=red><center>Victory!!</center></font></h2>");
+    text_1->setFont(f);
+    QLabel *text_2=new QLabel;
+    text_2->setText("<center>Enter your name</center>");
+    text_2->setFont(f);
+    text_name=new QLineEdit;
+
+    QGridLayout *layout=new QGridLayout;
+    layout->addWidget(text_1,0,0,1,4);
+    layout->addWidget(text_2,1,0,1,4);
+    layout->addWidget(text_name,2,1,1,2);
+    layout->addWidget(button_continue,3,0,1,2);
+    layout->addWidget(button_quit,3,2,1,2);
+    end->setLayout(layout);
+    end->exec();
 }

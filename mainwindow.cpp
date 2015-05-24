@@ -40,7 +40,7 @@ void MainWindow::quit()
 
 void MainWindow::view_rank()
 {
-    rank *a=new rank;
+    rank *k=new rank;
 }
 
 void MainWindow::set_restart_activate()

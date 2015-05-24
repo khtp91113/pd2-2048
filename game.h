@@ -26,7 +26,7 @@
 #include <QMediaPlayer>
 #include <QtSql>
 #include <QTableView>
-#include <QFileInfo>
+#include <QMap>
 
 class game : public QWidget
 {
@@ -38,14 +38,16 @@ public:
     void set_check();
     void random_generate();
     void select_pic();
-    void elapse();
     void set_a(int b);
     void judge();
+    void elapse();
     void getmain(MainWindow &w);
     void random_generate_for_begin();
     void add_score(int b);
     void set_score();
     void display_score();
+    void enough();
+    void set_once();
 
 protected:
     void resizeEvent(QResizeEvent *event);
@@ -59,6 +61,7 @@ public slots:
     void quit();
     void restart_for_menu();
     void change_model();
+    void quit_with_name();
 private:
     MainWindow *window;
     QImage image;
@@ -108,6 +111,7 @@ private:
     QLineEdit *text_name;
     QLCDNumber *score;
     int your_score;
+    int once;
 };
 
 #endif // GAME_H

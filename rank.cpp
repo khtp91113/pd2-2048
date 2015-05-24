@@ -9,36 +9,36 @@ rank::rank(QWidget *parent) :
      //db.exec("DROP TABLE rank");
      QSqlQuery query(db);
 
-     query.prepare("CREATE TABLE rank (Rank varchar[2],Name varchar(20),Score varchar(20))");
+     query.prepare("CREATE TABLE rank (Name varchar(20),Score varchar(20))");
      query.exec();
 
-     /*query.prepare("INSERT INTO rank(Rank,Name,Score) VALUES('1','--','--')");
+     /*query.prepare("INSERT INTO rank(Name,Score) VALUES('--','--')");
      query.exec();
-     query.prepare("INSERT INTO rank(Rank,Name,Score) VALUES('2','--','--')");
+     query.prepare("INSERT INTO rank(Name,Score) VALUES('--','--')");
      query.exec();
-     query.prepare("INSERT INTO rank(Rank,Name,Score) VALUES('3','--','--')");
+     query.prepare("INSERT INTO rank(Name,Score) VALUES('--','--')");
      query.exec();
-     query.prepare("INSERT INTO rank(Rank,Name,Score) VALUES('4','--','--')");
+     query.prepare("INSERT INTO rank(Name,Score) VALUES('--','--')");
      query.exec();
-     query.prepare("INSERT INTO rank(Rank,Name,Score) VALUES('5','--','--')");
+     query.prepare("INSERT INTO rank(Name,Score) VALUES('--','--')");
      query.exec();
-     query.prepare("INSERT INTO rank(Rank,Name,Score) VALUES('6','--','--')");
+     query.prepare("INSERT INTO rank(Name,Score) VALUES('--','--')");
      query.exec();
-     query.prepare("INSERT INTO rank(Rank,Name,Score) VALUES('7','--','--')");
+     query.prepare("INSERT INTO rank(Name,Score) VALUES('--','--')");
      query.exec();
-     query.prepare("INSERT INTO rank(Rank,Name,Score) VALUES('8','--','--')");
+     query.prepare("INSERT INTO rank(Name,Score) VALUES('--','--')");
      query.exec();
-     query.prepare("INSERT INTO rank(Rank,Name,Score) VALUES('9','--','--')");
+     query.prepare("INSERT INTO rank(Name,Score) VALUES('--','--')");
      query.exec();
-     query.prepare("INSERT INTO rank(Rank,Name,Score) VALUES('10','--','--')");
+     query.prepare("INSERT INTO rank(Name,Score) VALUES('--','--')");
      query.exec();*/
      QSqlQueryModel *model=new QSqlQueryModel;
-     model->setQuery("SELECT * FROM rank");
+     model->setQuery("SELECT Name,Score FROM rank ORDER BY Score DESC LIMIT 10 ");
 
      table=new QTableView;
      table->setWindowTitle("Rank");
      table->setModel(model);
-     table->setFixedSize(325,325);
+     table->setFixedSize(226,325);
      table->show();
      db.close();
 }
