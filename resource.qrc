@@ -39,4 +39,5 @@
         <file>lose.mp3</file>
         <file>back_music.mp3</file>
     </qresource>
+    <qresource prefix="/"/>
 </RCC>

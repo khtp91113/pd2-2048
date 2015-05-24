@@ -1,6 +1,8 @@
 #ifndef GAME_H
 #define GAME_H
 #include "mainwindow.h"
+#include "rank.h"
+#include <QMainWindow>
 #include <QWidget>
 #include <QApplication>
 #include <QtGui>
@@ -22,6 +24,9 @@
 #include <QDialog>
 #include <QLineEdit>
 #include <QMediaPlayer>
+#include <QtSql>
+#include <QTableView>
+#include <QFileInfo>
 
 class game : public QWidget
 {
@@ -38,6 +43,9 @@ public:
     void judge();
     void getmain(MainWindow &w);
     void random_generate_for_begin();
+    void add_score(int b);
+    void set_score();
+    void display_score();
 
 protected:
     void resizeEvent(QResizeEvent *event);
@@ -98,6 +106,8 @@ private:
     int a;
     QDialog *end;
     QLineEdit *text_name;
+    QLCDNumber *score;
+    int your_score;
 };
 
 #endif // GAME_H

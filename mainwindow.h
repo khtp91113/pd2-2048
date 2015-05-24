@@ -24,9 +24,6 @@
 #include <QDebug>
 #include <time.h>
 #include <QTime>
-namespace Ui {
-class MainWindow;
-}
 
 class MainWindow : public QMainWindow
 {
@@ -40,6 +37,7 @@ public:
 
 public slots:
     void quit();
+    void view_rank();
 private:
     QAction *Restart;
     QAction *Change_model;

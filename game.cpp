@@ -27,6 +27,7 @@ game::game(QWidget *parent) : QWidget(parent)
     layout->addWidget(button_start,5,2,8,4);
     layout->addWidget(button_quit,6,2,8,4);
     this->setLayout(layout);
+
 }
 
 void game::getmain(MainWindow &w)
@@ -60,7 +61,7 @@ void game::button_start_click()
     setPalette(pal);
 
     QGridLayout *layout=new QGridLayout;
-    QLCDNumber *score=new QLCDNumber;
+    score=new QLCDNumber;
     label_1=new QLabel;
     label_2=new QLabel;
     label_3=new QLabel;
@@ -206,6 +207,8 @@ void game::game_start()
 {
     set_check();
     set_a(0);
+    set_score();
+    display_score();
     random_generate_for_begin();
     this->setFocus();
 /*    QMediaPlayer*b=new QMediaPlayer;
@@ -522,6 +525,8 @@ void game::keyPressEvent(QKeyEvent *event)
             {
                 if(result[i+8]!=0&&result[i+8]==result[i+12])
                 {
+                    add_score(result[i]);
+                    add_score(result[i+8]);
                     result[i]=2*result[i];
                     result[i+4]=2*result[i+8];
                     result[i+8]=0;
@@ -529,6 +534,7 @@ void game::keyPressEvent(QKeyEvent *event)
                 }
                 else
                 {
+                    add_score(result[i]);
                     result[i]=2*result[i];
                     result[i+4]=result[i+8];
                     result[i+8]=result[i+12];
@@ -539,6 +545,7 @@ void game::keyPressEvent(QKeyEvent *event)
             {
                 if(result[i+4]!=0&&result[i+4]==result[i+8])
                 {
+                    add_score(result[i+4]);
                     result[i+4]*=2;
                     result[i+8]=result[i+12];
                     result[i+12]=0;
@@ -547,8 +554,9 @@ void game::keyPressEvent(QKeyEvent *event)
                 {
                     if(result[i+8]!=0&&result[i+8]==result[i+12])
                     {
+                        add_score(result[i+8]);
                         result[i+8]*=2;
-                        result[i+12]=0;
+                        result[i+12]=0;                        
                     }
                 }
             }
@@ -606,6 +614,7 @@ void game::keyPressEvent(QKeyEvent *event)
                 select_pic();
             }
         }
+        display_score();
         random_generate();
         select_pic();
         judge();
@@ -634,33 +643,38 @@ void game::keyPressEvent(QKeyEvent *event)
             {
                 if(result[i+4]!=0&&result[i+4]==result[i])
                 {
+                    add_score(result[i+12]);
+                    add_score(result[i+4]);
                     result[i+12]=2*result[i+12];
                     result[i+8]=2*result[i+4];
                     result[i+4]=0;
-                    result[i]=0;
+                    result[i]=0;                    
                 }
                 else
                 {
+                    add_score(result[i+12]);
                     result[i+12]=2*result[i+12];
                     result[i+8]=result[i+4];
                     result[i+4]=result[i];
-                    result[i]=0;
+                    result[i]=0;                    
                 }
             }
             else
             {
                 if(result[i+8]!=0&&result[i+8]==result[i+4])
                 {
+                    add_score(result[i+8]);
                     result[i+8]*=2;
                     result[i+4]=result[i];
-                    result[i]=0;
+                    result[i]=0;                    
                 }
                 else
                 {
                     if(result[i+4]!=0&&result[i+4]==result[i])
                     {
+                        add_score(result[i+4]);
                         result[i+4]*=2;
-                        result[i]=0;
+                        result[i]=0;                        
                     }
                 }
             }
@@ -719,12 +733,253 @@ void game::keyPressEvent(QKeyEvent *event)
                 select_pic();
             }
         }
+        display_score();
         random_generate();
         select_pic();
         judge();
     }
-    else if(event->key()==Qt::Key_Left);
-
+    else if(event->key()==Qt::Key_Left)
+    {
+        {
+            for(i=0;i<16;i+=4)
+            {
+                int number[4]={0},total=0;
+                for(int j=i;j<i+4;j++)
+                {
+                    if(result[j]!=0)
+                    {
+                        number[total]=result[j];
+                        total++;
+                    }
+                }
+                for(int j=i,k=0;k<total;j++,k++)
+                    result[j]=number[k];
+                for(int j=i+3,k=0;k<4-total;j--,k++)
+                    result[j]=0;
+            }
+            for(i=0;i<16;i+=4)
+            {
+                if(result[i]!=0&&result[i]==result[i+1])
+                {
+                    if(result[i+2]!=0&&result[i+2]==result[i+3])
+                    {
+                        add_score(result[i]);
+                        add_score(result[i+2]);
+                        result[i]=2*result[i];
+                        result[i+1]=2*result[i+2];
+                        result[i+2]=0;
+                        result[i+3]=0;                        
+                    }
+                    else
+                    {
+                        add_score(result[i]);
+                        result[i]=2*result[i];
+                        result[i+1]=result[i+2];
+                        result[i+2]=result[i+3];
+                        result[i+3]=0;                        
+                    }
+                }
+                else
+                {
+                    if(result[i+1]!=0&&result[i+1]==result[i+2])
+                    {
+                        add_score(result[i+1]);
+                        result[i+1]*=2;
+                        result[i+2]=result[i+3];
+                        result[i+3]=0;                        
+                    }
+                    else
+                    {
+                        if(result[i+2]!=0&&result[i+2]==result[i+3])
+                        {
+                            add_score(result[i+2]);
+                            result[i+2]*=2;
+                            result[i+3]=0;                            
+                        }
+                    }
+                }
+            }
+            while(repeat==0)
+            {
+                repeat=1;
+                time++;
+                for(int k=0,i=0;i<16;i+=4,k++)
+                {
+                    if(check[i+1]!=0&&(check[i]==0||(check[i+1]==check[i]&&check[i]!=result[i])))
+                    {
+                        check[i+28-k]=check[i+1];
+                        check[i+1]=0;
+                        repeat=0;
+                        count++;
+                    }
+                    if(check[i+2]!=0&&(check[i+1]==0||(check[i+2]==check[i+1]&&check[i+1]!=result[i+1])))
+                    {
+                        check[i+29-k]=check[i+2];
+                        check[i+2]=0;
+                        repeat=0;
+                        count++;
+                    }
+                    if(check[i+3]!=0&&(check[i+2]==0||(check[i+3]==check[i+2]&&check[i+2]!=result[i+2])))
+                    {
+                        check[i+30-k]=check[i+3];
+                        check[i+3]=0;
+                        repeat=0;
+                        count++;
+                    }
+                }
+                if(count==0&&time==1)
+                    return;
+                elapse();
+                select_pic();
+                for(int k=0,i=0;i<16;i+=4,k++)
+                {
+                    if(check[i+28-k]!=0)
+                    {
+                        check[i]+=check[i+28-k];
+                        check[i+28-k]=0;
+                    }
+                    if(check[i+29-k]!=0)
+                    {
+                        check[i+1]+=check[i+29-k];
+                        check[i+29-k]=0;
+                    }
+                    if(check[i+30-k]!=0)
+                    {
+                        check[i+2]+=check[i+30-k];
+                        check[i+30-k]=0;
+                    }
+                    elapse();
+                    select_pic();
+                }
+            }
+            display_score();
+            random_generate();
+            select_pic();
+            judge();
+        }
+    }
+    else if(event->key()==Qt::Key_Right)
+    {
+        {
+            for(i=0;i<16;i+=4)
+            {
+                int number[4]={0},total=0;
+                for(int j=i+3;j>=i;j--)
+                {
+                    if(result[j]!=0)
+                    {
+                        number[total]=result[j];
+                        total++;
+                    }
+                }
+                for(int j=i+3,k=0;k<total;j--,k++)
+                    result[j]=number[k];
+                for(int j=i,k=0;k<4-total;j++,k++)
+                    result[j]=0;
+            }
+            for(i=0;i<16;i+=4)
+            {
+                if(result[i+3]!=0&&result[i+3]==result[i+2])
+                {
+                    if(result[i+1]!=0&&result[i+1]==result[i])
+                    {
+                        add_score(result[i+3]);
+                        add_score(result[i+1]);
+                        result[i+3]=2*result[i+3];
+                        result[i+2]=2*result[i+1];
+                        result[i+1]=0;
+                        result[i]=0;                        
+                    }
+                    else
+                    {
+                        add_score(result[i+3]);
+                        result[i+3]=2*result[i+3];
+                        result[i+2]=result[i+1];
+                        result[i+1]=result[i];
+                        result[i]=0;                        
+                    }
+                }
+                else
+                {
+                    if(result[i+2]!=0&&result[i+2]==result[i+1])
+                    {
+                        add_score(result[i+2]);
+                        result[i+2]*=2;
+                        result[i+1]=result[i];
+                        result[i]=0;                        
+                    }
+                    else
+                    {
+                        if(result[i+1]!=0&&result[i+1]==result[i])
+                        {
+                            add_score(result[i+1]);
+                            result[i+1]*=2;
+                            result[i]=0;                            
+                        }
+                    }
+                }
+            }
+            while(repeat==0)
+            {
+                repeat=1;
+                time++;
+                for(int k=0,i=0;i<16;i+=4,k++)
+                {
+                    if(check[i+2]!=0&&(check[i+3]==0||(check[i+2]==check[i+3]&&check[i+3]!=result[i+3])))
+                    {
+                        check[i+30-k]=check[i+2];
+                        check[i+2]=0;
+                        repeat=0;
+                        count++;
+                    }
+                    if(check[i+1]!=0&&(check[i+2]==0||(check[i+1]==check[i+2]&&check[i+2]!=result[i+2])))
+                    {
+                        check[i+29-k]=check[i+1];
+                        check[i+1]=0;
+                        repeat=0;
+                        count++;
+                    }
+                    if(check[i]!=0&&(check[i+1]==0||(check[i]==check[i+1]&&check[i+1]!=result[i+1])))
+                    {
+                        check[i+28-k]=check[i];
+                        check[i]=0;
+                        repeat=0;
+                        count++;
+                    }
+                }
+                if(count==0&&time==1)
+                    return;
+                elapse();
+                select_pic();
+                for(int k=0,i=0;i<16;i+=4,k++)
+                {
+                    if(check[i+30-k]!=0)
+                    {
+                        check[i+3]+=check[i+30-k];
+                        check[i+30-k]=0;
+                    }
+                    if(check[i+29-k]!=0)
+                    {
+                        check[i+2]+=check[i+29-k];
+                        check[i+29-k]=0;
+                    }
+                    if(check[i+28-k]!=0)
+                    {
+                        check[i+1]+=check[i+28-k];
+                        check[i+28-k]=0;
+                    }
+                    elapse();
+                    select_pic();
+                }
+            }
+            display_score();
+            random_generate();
+            select_pic();
+            judge();
+        }
+    }
+    else
+        return;
 }
 
 void game::select_pic()
@@ -1092,7 +1347,7 @@ void game::select_pic()
             label_12_16->hide();
         if(check[28]!=0)
         {
-            label_1_2->setPixmap(QPixmap(":/back/base_" + QString::number(check[28]) + "_normal.png"));
+            label_1_2->setPixmap(QPixmap(":/back/base_" + QString::number(check[28]) + ".png"));
             label_1_2->setScaledContents(true);
             label_1_2->raise();
             label_1_2->show();
@@ -1101,7 +1356,7 @@ void game::select_pic()
             label_1_2->hide();
         if(check[29]!=0)
         {
-            label_2_3->setPixmap(QPixmap(":/back/base_" + QString::number(check[29]) + "_normal.png"));
+            label_2_3->setPixmap(QPixmap(":/back/base_" + QString::number(check[29]) + ".png"));
             label_2_3->setScaledContents(true);
             label_2_3->raise();
             label_2_3->show();
@@ -1110,7 +1365,7 @@ void game::select_pic()
             label_2_3->hide();
         if(check[30]!=0)
         {
-            label_3_4->setPixmap(QPixmap(":/back/base_" + QString::number(check[30]) + "_normal.png"));
+            label_3_4->setPixmap(QPixmap(":/back/base_" + QString::number(check[30]) + ".png"));
             label_3_4->setScaledContents(true);
             label_3_4->raise();
             label_3_4->show();
@@ -1119,7 +1374,7 @@ void game::select_pic()
             label_3_4->hide();
         if(check[31]!=0)
         {
-            label_5_6->setPixmap(QPixmap(":/back/base_" + QString::number(check[31]) + "_normal.png"));
+            label_5_6->setPixmap(QPixmap(":/back/base_" + QString::number(check[31]) + ".png"));
             label_5_6->setScaledContents(true);
             label_5_6->raise();
             label_5_6->show();
@@ -1128,7 +1383,7 @@ void game::select_pic()
             label_5_6->hide();
         if(check[32]!=0)
         {
-            label_6_7->setPixmap(QPixmap(":/back/base_" + QString::number(check[32]) + "_normal.png"));
+            label_6_7->setPixmap(QPixmap(":/back/base_" + QString::number(check[32]) + ".png"));
             label_6_7->setScaledContents(true);
             label_6_7->raise();
             label_6_7->show();
@@ -1137,7 +1392,7 @@ void game::select_pic()
             label_6_7->hide();
         if(check[33]!=0)
         {
-            label_7_8->setPixmap(QPixmap(":/back/base_" + QString::number(check[33]) + "_normal.png"));
+            label_7_8->setPixmap(QPixmap(":/back/base_" + QString::number(check[33]) + ".png"));
             label_7_8->setScaledContents(true);
             label_7_8->raise();
             label_7_8->show();
@@ -1146,7 +1401,7 @@ void game::select_pic()
             label_7_8->hide();
         if(check[34]!=0)
         {
-            label_9_10->setPixmap(QPixmap(":/back/base_" + QString::number(check[34]) + "_normal.png"));
+            label_9_10->setPixmap(QPixmap(":/back/base_" + QString::number(check[34]) + ".png"));
             label_9_10->setScaledContents(true);
             label_9_10->raise();
             label_9_10->show();
@@ -1155,7 +1410,7 @@ void game::select_pic()
             label_9_10->hide();
         if(check[35]!=0)
         {
-            label_10_11->setPixmap(QPixmap(":/back/base_" + QString::number(check[35]) + "_normal.png"));
+            label_10_11->setPixmap(QPixmap(":/back/base_" + QString::number(check[35]) + ".png"));
             label_10_11->setScaledContents(true);
             label_10_11->raise();
             label_10_11->show();
@@ -1164,7 +1419,7 @@ void game::select_pic()
             label_10_11->hide();
         if(check[36]!=0)
         {
-            label_11_12->setPixmap(QPixmap(":/back/base_" + QString::number(check[36]) + "_normal.png"));
+            label_11_12->setPixmap(QPixmap(":/back/base_" + QString::number(check[36]) + ".png"));
             label_11_12->setScaledContents(true);
             label_11_12->raise();
             label_11_12->show();
@@ -1173,7 +1428,7 @@ void game::select_pic()
             label_11_12->hide();
         if(check[37]!=0)
         {
-            label_13_14->setPixmap(QPixmap(":/back/base_" + QString::number(check[37]) + "_normal.png"));
+            label_13_14->setPixmap(QPixmap(":/back/base_" + QString::number(check[37]) + ".png"));
             label_13_14->setScaledContents(true);
             label_13_14->raise();
             label_13_14->show();
@@ -1182,7 +1437,7 @@ void game::select_pic()
             label_13_14->hide();
         if(check[38]!=0)
         {
-            label_14_15->setPixmap(QPixmap(":/back/base_" + QString::number(check[38]) + "_normal.png"));
+            label_14_15->setPixmap(QPixmap(":/back/base_" + QString::number(check[38]) + ".png"));
             label_14_15->setScaledContents(true);
             label_14_15->raise();
             label_14_15->show();
@@ -1191,7 +1446,7 @@ void game::select_pic()
             label_14_15->hide();
         if(check[39]!=0)
         {
-            label_15_16->setPixmap(QPixmap(":/back/base_" + QString::number(check[39]) + "_normal.png"));
+            label_15_16->setPixmap(QPixmap(":/back/base_" + QString::number(check[39]) + ".png"));
             label_15_16->setScaledContents(true);
             label_15_16->raise();
             label_15_16->show();
@@ -1205,7 +1460,7 @@ void game::elapse()
 {
     QTime t;
     t.start();
-    while(t.elapsed()<20)
+    while(t.elapsed()<18)
         QCoreApplication::processEvents();
 }
 
@@ -1271,9 +1526,45 @@ void game::judge()
 
 void game::restart()
 {
-    qDebug()<<text_name->text();
+    /*
+    QString s=QString::number(your_score);
+    QSqlDatabase db=QSqlDatabase::addDatabase("QSQLITE");
+    db.setDatabaseName("Score.dat");
+    db.open();
+    QSqlQuery query(db);
+    query.prepare("SELECT Score FROM rank WHERE Score = '--'");
+    if(query.exec()==true)
+    {
+        QSqlRecord rec=query.record();
+        for(int i=0;qry.next();i++)
+        {
+            int j=query.value(2);
+            if(j>your_score)
+                continue;
+            else
+            {
+                QString k=QString::number(i+1);
+                query.prepare("UPDATE rank SET Name=text_name, Score=s WHERE Rank=k");
+                query.exec();
+                for(int p=i+1;p<10;p++)
+                {
+                    QString k=QString::number(p+1);
+                    QString name=rec.value(1);
+                    QString num=rec.value(2);
+                    query.prepare("")
+                }
+                query.prepare("INSERT INTO rank (Name,Score) VALUES(text_name,s)");
+            }
+        }
+        query.prepare("INSERT INTO rank(Name,Score) VALUES('text_name','s')");
+    }
+
+
+    db.close();*/
     end->close();
     set_check();
+    set_score();
+    display_score();
     select_pic();
     random_generate_for_begin();
 }
@@ -1300,6 +1591,8 @@ void game::restart_for_menu()
     if(message.exec() == QMessageBox::Yes)
     {
         set_check();
+        set_score();
+        display_score();
         select_pic();
         random_generate_for_begin();
     }
@@ -1312,4 +1605,20 @@ void game::change_model()
     else
         a=0;
     select_pic();
+}
+
+void game::add_score(int b)
+{
+    your_score+=b;
+}
+
+void game::set_score()
+{
+    your_score=0;
+}
+
+void game::display_score()
+{
+    QString s=QString::number(your_score);
+    score->display(s);
 }

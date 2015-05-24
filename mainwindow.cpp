@@ -15,6 +15,7 @@ MainWindow::MainWindow(QWidget *parent) :
     menu->addAction(Change_model);
     Change_model->setDisabled(true);
     menu->addAction(Rank);
+    connect(Rank,SIGNAL(triggered()),this,SLOT(view_rank()));
     menu->addAction(Quit);
     QMenuBar *menubar=new QMenuBar;
     menubar->addMenu(menu);
@@ -35,6 +36,11 @@ void MainWindow::quit()
     message.setIconPixmap(QPixmap(":/back/warning.jpg"));
     if(message.exec() == QMessageBox::Yes)
         exit(1);
+}
+
+void MainWindow::view_rank()
+{
+    rank *a=new rank;
 }
 
 void MainWindow::set_restart_activate()
