@@ -27,6 +27,7 @@
 #include <QtSql>
 #include <QTableView>
 #include <QMap>
+#include <QMediaPlaylist>
 
 class game : public QWidget
 {

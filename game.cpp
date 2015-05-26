@@ -212,9 +212,6 @@ void game::game_start()
     display_score();
     random_generate_for_begin();
     this->setFocus();
-    QMediaPlayer*b=new QMediaPlayer;
-    b->setMedia(QUrl("qrc:/music/back_music.mp3"));
-    b->play();
 }
 
 void game::set_check()

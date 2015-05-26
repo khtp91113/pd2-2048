@@ -12,8 +12,6 @@ rank::rank(QWidget *parent) :
      query.prepare("CREATE TABLE rank (Name varchar(20),Score varchar(20))");
      query.exec();
 
-     /*query.prepare("INSERT INTO rank(Name,Score) VALUES('--','--')");
-     query.exec();
      query.prepare("INSERT INTO rank(Name,Score) VALUES('--','--')");
      query.exec();
      query.prepare("INSERT INTO rank(Name,Score) VALUES('--','--')");
@@ -31,7 +29,9 @@ rank::rank(QWidget *parent) :
      query.prepare("INSERT INTO rank(Name,Score) VALUES('--','--')");
      query.exec();
      query.prepare("INSERT INTO rank(Name,Score) VALUES('--','--')");
-     query.exec();*/
+     query.exec();
+     query.prepare("INSERT INTO rank(Name,Score) VALUES('--','--')");
+     query.exec();
      QSqlQueryModel *model=new QSqlQueryModel;
      model->setQuery("SELECT Name,Score FROM rank ORDER BY Score DESC LIMIT 10 ");
 
