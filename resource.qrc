@@ -1,0 +1,42 @@
+<RCC>
+    <qresource prefix="/back">
+        <file>menu_back.jpg</file>
+        <file>warning.jpg</file>
+        <file>base_0.png</file>
+        <file>base_2.png</file>
+        <file>base_2_normal.png</file>
+        <file>base_4.png</file>
+        <file>base_4_normal.png</file>
+        <file>base_8.png</file>
+        <file>base_8_normal.png</file>
+        <file>base_16.png</file>
+        <file>base_16_normal.png</file>
+        <file>base_32.png</file>
+        <file>base_32_normal.png</file>
+        <file>base_64.png</file>
+        <file>base_64_normal.png</file>
+        <file>base_128.png</file>
+        <file>base_128_normal.png</file>
+        <file>base_256.png</file>
+        <file>base_256_normal.png</file>
+        <file>base_512.png</file>
+        <file>base_512_normal.png</file>
+        <file>base_1024.png</file>
+        <file>base_1024_normal.png</file>
+        <file>base_2048.png</file>
+        <file>base_2048_normal.png</file>
+        <file>base_4096.png</file>
+        <file>base_4096_normal.png</file>
+        <file>base_8192.png</file>
+        <file>base_8192_normal.png</file>
+        <file>base_16384.png</file>
+        <file>back.jpg</file>
+        <file>base_16384_normal.png</file>
+        <file>base_0_normal.png</file>
+    </qresource>
+    <qresource prefix="/music">
+        <file>warning.mp3</file>
+        <file>lose.mp3</file>
+        <file>win.mp3</file>
+    </qresource>
+</RCC>
