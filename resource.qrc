@@ -33,6 +33,11 @@
         <file>back.jpg</file>
         <file>base_16384_normal.png</file>
         <file>base_0_normal.png</file>
+        <file>frame.png</file>
+        <file>base_-1.png</file>
+        <file>base_-1_normal.png</file>
+        <file>defeat.png</file>
+        <file>victory.png</file>
     </qresource>
     <qresource prefix="/music">
         <file>warning.mp3</file>

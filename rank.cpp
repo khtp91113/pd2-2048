@@ -9,31 +9,31 @@ rank::rank(QWidget *parent) :
      //db.exec("DROP TABLE rank");
      QSqlQuery query(db);
 
-     query.prepare("CREATE TABLE rank (Name varchar(20),Score varchar(20))");
+     query.prepare("CREATE TABLE rank (Name varchar(20),Score INTEGER)");
      query.exec();
 
-     query.prepare("INSERT INTO rank(Name,Score) VALUES('--','--')");
+     /*query.prepare("INSERT INTO rank(Name) VALUES('--')");
      query.exec();
-     query.prepare("INSERT INTO rank(Name,Score) VALUES('--','--')");
+     query.prepare("INSERT INTO rank(Name) VALUES('--')");
      query.exec();
-     query.prepare("INSERT INTO rank(Name,Score) VALUES('--','--')");
+     query.prepare("INSERT INTO rank(Name) VALUES('--')");
      query.exec();
-     query.prepare("INSERT INTO rank(Name,Score) VALUES('--','--')");
+     query.prepare("INSERT INTO rank(Name) VALUES('--')");
      query.exec();
-     query.prepare("INSERT INTO rank(Name,Score) VALUES('--','--')");
+     query.prepare("INSERT INTO rank(Name) VALUES('--')");
      query.exec();
-     query.prepare("INSERT INTO rank(Name,Score) VALUES('--','--')");
+     query.prepare("INSERT INTO rank(Name) VALUES('--')");
      query.exec();
-     query.prepare("INSERT INTO rank(Name,Score) VALUES('--','--')");
+     query.prepare("INSERT INTO rank(Name) VALUES('--')");
      query.exec();
-     query.prepare("INSERT INTO rank(Name,Score) VALUES('--','--')");
+     query.prepare("INSERT INTO rank(Name) VALUES('--')");
      query.exec();
-     query.prepare("INSERT INTO rank(Name,Score) VALUES('--','--')");
+     query.prepare("INSERT INTO rank(Name) VALUES('--')");
      query.exec();
-     query.prepare("INSERT INTO rank(Name,Score) VALUES('--','--')");
-     query.exec();
+     query.prepare("INSERT INTO rank(Name) VALUES('--')");
+     query.exec();*/
      QSqlQueryModel *model=new QSqlQueryModel;
-     model->setQuery("SELECT Name,Score FROM rank ORDER BY Score DESC LIMIT 10 ");
+     model->setQuery("SELECT Name,Score FROM rank ORDER BY Score DESC LIMIT 10");
 
      table=new QTableView;
      table->setWindowTitle("Rank");

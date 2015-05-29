@@ -39,7 +39,6 @@ public:
     void set_check();
     void random_generate();
     void select_pic();
-    void set_a(int b);
     void judge();
     void elapse();
     void getmain(MainWindow &w);
@@ -49,6 +48,7 @@ public:
     void display_score();
     void enough();
     void set_once();
+    void select_forbid();
 
 protected:
     void resizeEvent(QResizeEvent *event);
@@ -61,8 +61,13 @@ public slots:
     void restart();
     void quit();
     void restart_for_menu();
-    void change_model();
     void quit_with_name();
+    void set_icon_normal();
+    void set_icon_differ();
+    void set_mode_normal();
+    void set_mode_block();
+    void add_block();
+    void dim_block();
 private:
     MainWindow *window;
     QImage image;
@@ -107,12 +112,15 @@ private:
     QLabel *label_13_14;
     QLabel *label_14_15;
     QLabel *label_15_16;
-    int a;
+    QLabel *frame;
+    int icon;
     QDialog *end;
     QLineEdit *text_name;
     QLCDNumber *score;
     int your_score;
     int once;
+    int mode;
+    int when;
 };
 
 #endif // GAME_H

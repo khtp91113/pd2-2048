@@ -32,17 +32,29 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-    void set_restart_activate();
-    void set_Change_activate();
+    void set_restart_visible();
+    void set_blocks_visible();
+    void set_blocks_invisible();
 
 public slots:
     void quit();
     void view_rank();
+
 private:
     QAction *Restart;
-    QAction *Change_model;
+    QMenu *Change_icon;
     QAction *Rank;
     QAction *Quit;
+    QMenu *Change_mode;
+    QAction *Icon_normal;
+    QAction *Icon_differ;
+    QAction *Mode_normal;
+    QAction *Mode_block;
+    QActionGroup *decide_icon;
+    QActionGroup *decide_mode;
+    QMenu *menu_blocks;
+    QAction *add_blocks;
+    QAction *dim_blocks;
 };
 
 #endif // MAINWINDOW_H

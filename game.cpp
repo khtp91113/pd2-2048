@@ -102,7 +102,7 @@ void game::button_start_click()
     label_13_14=new QLabel;
     label_14_15=new QLabel;
     label_15_16=new QLabel;
-
+    frame=new QLabel;
     QLabel *s=new QLabel;
     s->setText("<b><font color=orange><center>Score</center></font></b>");
     QFont f;
@@ -143,6 +143,8 @@ void game::button_start_click()
     label_15->setScaledContents(true);
     label_16->setPixmap(QPixmap(path));
     label_16->setScaledContents(true);
+    frame->setPixmap(QPixmap(":/back/frame.png"));
+    frame->setScaledContents(true);
 
     layout->addWidget(s,2,2,3,6);
     layout->addWidget(score,2,8,3,6);
@@ -186,12 +188,29 @@ void game::button_start_click()
     layout->addWidget(label_13_14,13,5,2,2);
     layout->addWidget(label_14_15,13,7,2,2);
     layout->addWidget(label_15_16,13,9,2,2);
+    layout->addWidget(frame,7,4,8,8);
     this->setLayout(layout);
-
-    window->set_restart_activate();
+    frame->lower();
+    window->set_restart_visible();
     connect(window->Restart,SIGNAL(triggered()),this,SLOT(restart_for_menu()));
-    window->set_Change_activate();
-    connect(window->Change_model,SIGNAL(triggered()),this,SLOT(change_model()));
+    if(window->Icon_normal->isChecked())
+        icon=0;
+    if(window->Icon_differ->isChecked())
+        icon=1;
+    if(window->Mode_normal->isChecked())
+        mode=0;
+    if(window->Mode_block->isChecked())
+    {
+        window->set_blocks_visible();
+        mode=1;
+    }
+    connect(window->Icon_normal,SIGNAL(triggered(bool)),this,SLOT(set_icon_normal()));
+    connect(window->Icon_differ,SIGNAL(triggered(bool)),this,SLOT(set_icon_differ()));
+    connect(window->Mode_normal,SIGNAL(triggered(bool)),this,SLOT(set_mode_normal()));
+    connect(window->Mode_block,SIGNAL(triggered(bool)),this,SLOT(set_mode_block()));
+    connect(window->add_blocks,SIGNAL(triggered(bool)),this,SLOT(add_block()));
+    connect(window->dim_blocks,SIGNAL(triggered(bool)),this,SLOT(dim_block()));
+    window->dim_blocks->setDisabled(true);
     game_start();
 }
 
@@ -206,11 +225,19 @@ void game::resizeEvent(QResizeEvent *event)
 void game::game_start()
 {
     set_check();
-    set_a(0);
     set_score();
     set_once();
     display_score();
+    if(mode!=0)
+    {
+        select_forbid();
+        window->dim_blocks->setDisabled(true);
+        window->add_blocks->setEnabled(true);
+    }
     random_generate_for_begin();
+    check[14]=1024;
+    check[15]=1024;
+    select_pic();
     this->setFocus();
 }
 
@@ -228,7 +255,7 @@ void game::set_once()
 void game::random_generate_for_begin()
 {
     QString path_base2;
-    if(a==0)
+    if(icon==0)
         path_base2=":/back/base_2_normal.png";
     else
         path_base2=":/back/base_2.png";
@@ -359,7 +386,7 @@ void game::random_generate()
 {
     QString path_base2;
     QString path_base4;
-    if(a==0)
+    if(icon==0)
     {
         path_base2=":/back/base_2_normal.png";
         path_base4=":/back/base_4_normal.png";
@@ -500,66 +527,248 @@ void game::random_generate()
 
 void game::keyPressEvent(QKeyEvent *event)
 {
-    int i,repeat=0,count=0,time=0,result[16]={0};
+    int i,repeat=0,count=0,amount=0,time=0,result[16]={0};
     for(i=0;i<16;i++)
         result[i]=check[i];
-    if(event->key()==Qt::Key_Up)
+    if(event->key()==Qt::Key_Up||event->key()==Qt::Key_W)
     {
         this->clearFocus();
         for(i=0;i<4;i++)
         {
+
             int number[4]={0},total=0;
             for(int j=i;j<16;j+=4)
             {
-                if(result[j]!=0)
+                if(result[j]>0)
                 {
                     number[total]=result[j];
                     total++;
                 }
             }
-            for(int j=i,k=0;k<total;j+=4,k++)
-                result[j]=number[k];
-            for(int j=i+12,k=0;k<4-total;j-=4,k++)
-                result[j]=0;
-        }
-        for(i=0;i<4;i++)
-        {
-            if(result[i]!=0&&result[i]==result[i+4])
+            if(mode==0)
             {
-                if(result[i+8]!=0&&result[i+8]==result[i+12])
-                {
-                    add_score(result[i]);
-                    add_score(result[i+8]);
-                    result[i]=2*result[i];
-                    result[i+4]=2*result[i+8];
-                    result[i+8]=0;
-                    result[i+12]=0;
-                }
-                else
-                {
-                    add_score(result[i]);
-                    result[i]=2*result[i];
-                    result[i+4]=result[i+8];
-                    result[i+8]=result[i+12];
-                    result[i+12]=0;
-                }
+                for(int j=i,k=0;k<total;j+=4,k++)
+                    result[j]=number[k];
+                for(int j=i+12,k=0;k<4-total;j-=4,k++)
+                    result[j]=0;
             }
             else
             {
-                if(result[i+4]!=0&&result[i+4]==result[i+8])
+                amount=0;
+                int temp[4]={0};
+                for(int j=i;j<16;j+=4)
                 {
-                    add_score(result[i+4]);
-                    result[i+4]*=2;
-                    result[i+8]=result[i+12];
-                    result[i+12]=0;
+                    if(result[j]==-1)
+                    {
+                        temp[amount]=j;
+                        amount++;
+                    }
+                }
+                if(amount==3||amount==4);
+                else if(amount==0)
+                {
+                    for(int j=i,k=0;k<total;j+=4,k++)
+                        result[j]=number[k];
+                    for(int j=i+12,k=0;k<4-total;j-=4,k++)
+                        result[j]=0;
+                }
+                else if(amount==1)
+                {
+                    if(temp[amount-1]==i)
+                    {
+                        for(int j=i+4;j<16;j+=4)
+                        {
+                            if(result[j]==0)
+                            {
+                                for(int k=j+4;k<16;k+=4)
+                                {
+                                    if(result[k]>0)
+                                    {
+                                        result[j]=result[k];
+                                        result[k]=0;
+                                    }
+                                }
+                            }
+                        }
+                        if(result[i+4]==result[i+8])
+                        {
+                            add_score(result[i+4]);
+                            result[i+4]*=2;
+                            result[i+8]=result[i+12];
+                            result[i+12]=0;
+                        }
+                        else if(result[i+8]==result[i+12])
+                        {
+                            add_score(result[i+8]);
+                            result[i+8]*=2;
+                            result[i+12]=0;
+                        }
+                        else{;}
+                    }
+                    else if(temp[amount-1]==i+4)
+                    {
+                        for(int j=i+8;j<16;j+=4)
+                        {
+                            if(result[j]==0)
+                            {
+                                for(int k=j+4;k<16;k+=4)
+                                {
+                                    if(result[k]>0)
+                                    {
+                                        result[j]=result[k];
+                                        result[k]=0;
+                                    }
+                                }
+                            }
+                        }
+                        if(result[i+8]==result[i+12])
+                        {
+                            add_score(result[i+8]);
+                            result[i+8]*=2;
+                            result[i+12]=0;
+                        }
+                    }
+                    else if(temp[amount-1]==i+8)
+                    {
+                        for(int j=i;j<i+8;j+=4)
+                        {
+                            if(result[j]==0)
+                            {
+                                for(int k=j+4;k<i+8;k+=4)
+                                {
+                                    if(result[k]>0)
+                                    {
+                                        result[j]=result[k];
+                                        result[k]=0;
+                                    }
+                                }
+                            }
+                        }
+                        if(result[i]==result[i+4])
+                        {
+                            add_score(result[i]);
+                            result[i]*=2;
+                            result[i+4]=0;
+                        }
+                    }
+                    else
+                    {
+                        for(int j=i;j<i+12;j+=4)
+                        {
+                            if(result[j]==0)
+                            {
+                                for(int k=j+4;k<i+12;k+=4)
+                                {
+                                    if(result[k]>0)
+                                    {
+                                        result[j]=result[k];
+                                        result[k]=0;
+                                    }
+                                }
+                            }
+                        }
+                        if(result[i]==result[i+4])
+                        {
+                            add_score(result[i]);
+                            result[i]*=2;
+                            result[i+4]=result[i+8];
+                            result[i+8]=0;
+                        }
+                        else if(result[i+4]==result[i+8])
+                        {
+                            add_score(result[i+4]);
+                            result[i+4]*=2;
+                            result[i+8]=0;
+                        }
+                        else{;}
+                    }
                 }
                 else
                 {
+                    if(temp[0]==i&&temp[1]==i+4)
+                    {
+                        if(result[i+8]==0&&result[i+12]!=0)
+                        {
+                            result[i+8]=result[i+12];
+                            result[i+12]=0;
+                        }
+                        if(result[i+8]==result[i+12])
+                        {
+                            add_score(result[i+8]);
+                            result[i+8]*=2;
+                            result[i+12]=0;
+                        }
+                    }
+                    else if(temp[0]==i&&temp[1]==i+12)
+                    {
+                        if(result[i+4]==0&&result[i+8]!=0)
+                        {
+                            result[i+4]=result[i+8];
+                            result[i+8]=0;
+                        }
+                        if(result[i+4]==result[i+8])
+                        {
+                            add_score(result[i+4]);
+                            result[i+4]*=2;
+                            result[i+8]=0;
+                        }
+                    }
+                    else if(temp[0]==i+8&&temp[1]==i+12)
+                    {
+                        if(result[i]==0&&result[i+4]!=0)
+                        {
+                            result[i]=result[i+4];
+                            result[i+4]=0;
+                        }
+                        if(result[i]==result[i+4])
+                        {
+                            add_score(result[i]);
+                            result[i]*=2;
+                            result[i+4]=0;
+                        }
+                    }
+                    else{;}
+                }
+            }
+            if(mode==0||amount==0)
+            {
+                if(result[i]!=0&&result[i]==result[i+4])
+                {
                     if(result[i+8]!=0&&result[i+8]==result[i+12])
                     {
+                        add_score(result[i]);
                         add_score(result[i+8]);
-                        result[i+8]*=2;
-                        result[i+12]=0;                        
+                        result[i]=2*result[i];
+                        result[i+4]=2*result[i+8];
+                        result[i+8]=0;
+                        result[i+12]=0;
+                    }
+                    else
+                    {
+                        add_score(result[i]);
+                        result[i]=2*result[i];
+                        result[i+4]=result[i+8];
+                        result[i+8]=result[i+12];
+                        result[i+12]=0;
+                    }
+                }
+                else
+                {
+                    if(result[i+4]!=0&&result[i+4]==result[i+8])
+                    {
+                        add_score(result[i+4]);
+                        result[i+4]*=2;
+                        result[i+8]=result[i+12];
+                        result[i+12]=0;
+                    }
+                    else
+                    {
+                        if(result[i+8]!=0&&result[i+8]==result[i+12])
+                        {
+                            add_score(result[i+8]);
+                            result[i+8]*=2;
+                            result[i+12]=0;
+                        }
                     }
                 }
             }
@@ -570,21 +779,21 @@ void game::keyPressEvent(QKeyEvent *event)
             time++;
             for(i=0;i<4;i++)
             {
-                if(check[i+4]!=0&&(check[i]==0||(check[i+4]==check[i]&&check[i]!=result[i])))
+                if(check[i+4]>0&&(check[i]==0||(check[i+4]==check[i]&&check[i]!=result[i])))
                 {
                     check[i+16]=check[i+4];
                     check[i+4]=0;
                     repeat=0;
                     count++;
                 }
-                if(check[i+8]!=0&&(check[i+4]==0||(check[i+8]==check[i+4]&&check[i+4]!=result[i+4])))
+                if(check[i+8]>0&&(check[i+4]==0||(check[i+8]==check[i+4]&&check[i+4]!=result[i+4])))
                 {
                     check[i+20]=check[i+8];
                     check[i+8]=0;
                     repeat=0;
                     count++;
                 }
-                if(check[i+12]!=0&&(check[i+8]==0||(check[i+12]==check[i+8]&&check[i+8]!=result[i+8])))
+                if(check[i+12]>0&&(check[i+8]==0||(check[i+12]==check[i+8]&&check[i+8]!=result[i+8])))
                 {
                     check[i+24]=check[i+12];
                     check[i+12]=0;
@@ -627,7 +836,7 @@ void game::keyPressEvent(QKeyEvent *event)
         enough();
         this->setFocus();
     }
-    else if(event->key()==Qt::Key_Down)
+    else if(event->key()==Qt::Key_Down||event->key()==Qt::Key_S)
     {
         this->clearFocus();
         for(i=0;i<4;i++)
@@ -635,81 +844,260 @@ void game::keyPressEvent(QKeyEvent *event)
             int number[4]={0},total=0;
             for(int j=i+12;j>=0;j-=4)
             {
-                if(result[j]!=0)
+                if(result[j]>0)
                 {
                     number[total]=result[j];
                     total++;
                 }
             }
-            for(int j=i+12,k=0;k<total;j-=4,k++)
-                result[j]=number[k];
-            for(int j=i,k=0;k<4-total;j+=4,k++)
-                result[j]=0;
-        }
-        for(i=0;i<4;i++)
-        {
-            if(result[i+12]!=0&&result[i+12]==result[i+8])
+            if(mode==0)
             {
-                if(result[i+4]!=0&&result[i+4]==result[i])
-                {
-                    add_score(result[i+12]);
-                    add_score(result[i+4]);
-                    result[i+12]=2*result[i+12];
-                    result[i+8]=2*result[i+4];
-                    result[i+4]=0;
-                    result[i]=0;                    
-                }
-                else
-                {
-                    add_score(result[i+12]);
-                    result[i+12]=2*result[i+12];
-                    result[i+8]=result[i+4];
-                    result[i+4]=result[i];
-                    result[i]=0;                    
-                }
+                for(int j=i+12,k=0;k<total;j-=4,k++)
+                    result[j]=number[k];
+                for(int j=i,k=0;k<4-total;j+=4,k++)
+                    result[j]=0;
             }
             else
             {
-                if(result[i+8]!=0&&result[i+8]==result[i+4])
+                amount=0;
+                int temp[4]={0};
+                for(int j=i;j<16;j+=4)
                 {
-                    add_score(result[i+8]);
-                    result[i+8]*=2;
-                    result[i+4]=result[i];
-                    result[i]=0;                    
+                    if(result[j]==-1)
+                    {
+                        temp[amount]=j;
+                        amount++;
+                    }
+                }
+                if(amount==3||amount==4);
+                else if(amount==0)
+                {
+                    for(int j=i+12,k=0;k<total;j-=4,k++)
+                        result[j]=number[k];
+                    for(int j=i,k=0;k<4-total;j+=4,k++)
+                        result[j]=0;
+                }
+                else if(amount==1)
+                {
+                    if(temp[amount-1]==i)
+                    {
+                        for(int j=i+12;j>i;j-=4)
+                        {
+                            if(result[j]==0)
+                            {
+                                for(int k=j-4;k>i;k-=4)
+                                {
+                                    if(result[k]>0)
+                                    {
+                                        result[j]=result[k];
+                                        result[k]=0;
+                                    }
+                                }
+                            }
+                        }
+                        if(result[i+12]==result[i+8])
+                        {
+                            add_score(result[i+12]);
+                            result[i+12]*=2;
+                            result[i+8]=result[i+4];
+                            result[i+4]=0;
+                        }
+                        else if(result[i+8]==result[i+4])
+                        {
+                            add_score(result[i+8]);
+                            result[i+8]*=2;
+                            result[i+4]=0;
+                        }
+                        else{;}
+                    }
+                    else if(temp[amount-1]==i+4)
+                    {
+                        for(int j=i+12;j>i+4;j-=4)
+                        {
+                            if(result[j]==0)
+                            {
+                                for(int k=j-4;k>i+4;k-=4)
+                                {
+                                    if(result[k]>0)
+                                    {
+                                        result[j]=result[k];
+                                        result[k]=0;
+                                    }
+                                }
+                            }
+                        }
+                        if(result[i+12]==result[i+8])
+                        {
+                            add_score(result[i+12]);
+                            result[i+12]*=2;
+                            result[i+8]=0;
+                        }
+                    }
+                    else if(temp[amount-1]==i+8)
+                    {
+                        for(int j=i+4;j>=i;j-=4)
+                        {
+                            if(result[j]==0)
+                            {
+                                for(int k=j-4;k>=i;k-=4)
+                                {
+                                    if(result[k]>0)
+                                    {
+                                        result[j]=result[k];
+                                        result[k]=0;
+                                    }
+                                }
+                            }
+                        }
+                        if(result[i]==result[i+4])
+                        {
+                            add_score(result[i+4]);
+                            result[i+4]*=2;
+                            result[i]=0;
+                        }
+                    }
+                    else
+                    {
+                        for(int j=i+8;j>=i;j-=4)
+                        {
+                            if(result[j]==0)
+                            {
+                                for(int k=j-4;k>=i;k-=4)
+                                {
+                                    if(result[k]>0)
+                                    {
+                                        result[j]=result[k];
+                                        result[k]=0;
+                                    }
+                                }
+                            }
+                        }
+                        if(result[i+8]==result[i+4])
+                        {
+                            add_score(result[i+8]);
+                            result[i+8]*=2;
+                            result[i+4]=result[i];
+                            result[i]=0;
+                        }
+                        else if(result[i+4]==result[i])
+                        {
+                            add_score(result[i+4]);
+                            result[i+4]*=2;
+                            result[i]=0;
+                        }
+                    }
                 }
                 else
                 {
+                    if(temp[0]==i&&temp[1]==i+4)
+                    {
+                        if(result[i+12]==0&&result[i+8]!=0)
+                        {
+                            result[i+12]=result[i+8];
+                            result[i+8]=0;
+                        }
+                        if(result[i+12]==result[i+8])
+                        {
+                            add_score(result[i+12]);
+                            result[i+12]*=2;
+                            result[i+8]=0;
+                        }
+                    }
+                    else if(temp[0]==i&&temp[1]==i+12)
+                    {
+                        if(result[i+8]==0&&result[i+4]!=0)
+                        {
+                            result[i+8]=result[i+4];
+                            result[i+4]=0;
+                        }
+                        if(result[i+8]==result[i+4])
+                        {
+                            add_score(result[i+8]);
+                            result[i+8]*=2;
+                            result[i+4]=0;
+                        }
+                    }
+                    else if(temp[0]==i+12&&temp[1]==i+8)
+                    {
+                        if(result[i+4]==0&&result[i]!=0)
+                        {
+                            result[i+4]=result[i];
+                            result[i]=0;
+                        }
+                        if(result[i+4]==result[i])
+                        {
+                            add_score(result[i+4]);
+                            result[i+4]*=2;
+                            result[i]=0;
+                        }
+                    }
+                    else{;}
+                }
+            }
+            if(mode==0||amount==0)
+            {
+                if(result[i+12]!=0&&result[i+12]==result[i+8])
+                {
                     if(result[i+4]!=0&&result[i+4]==result[i])
                     {
+                        add_score(result[i+12]);
                         add_score(result[i+4]);
-                        result[i+4]*=2;
-                        result[i]=0;                        
+                        result[i+12]=2*result[i+12];
+                        result[i+8]=2*result[i+4];
+                        result[i+4]=0;
+                        result[i]=0;
+                    }
+                    else
+                    {
+                        add_score(result[i+12]);
+                        result[i+12]=2*result[i+12];
+                        result[i+8]=result[i+4];
+                        result[i+4]=result[i];
+                        result[i]=0;
+                    }
+                }
+                else
+                {
+                    if(result[i+8]!=0&&result[i+8]==result[i+4])
+                    {
+                        add_score(result[i+8]);
+                        result[i+8]*=2;
+                        result[i+4]=result[i];
+                        result[i]=0;
+                    }
+                    else
+                    {
+                        if(result[i+4]!=0&&result[i+4]==result[i])
+                        {
+                            add_score(result[i+4]);
+                            result[i+4]*=2;
+                            result[i]=0;
+                        }
                     }
                 }
             }
         }
-
         while(repeat==0)
         {
             repeat=1;
             time++;
             for(i=0;i<4;i++)
             {
-                if(check[i+8]!=0&&(check[i+12]==0||(check[i+8]==check[i+12]&&check[i+12]!=result[i+12])))
+                if(check[i+8]>0&&(check[i+12]==0||(check[i+8]==check[i+12]&&check[i+12]!=result[i+12])))
                 {
                     check[i+24]=check[i+8];
                     check[i+8]=0;
                     repeat=0;
                     count++;
                 }
-                if(check[i+4]!=0&&(check[i+8]==0||(check[i+4]==check[i+8]&&check[i+8]!=result[i+8])))
+                if(check[i+4]>0&&(check[i+8]==0||(check[i+4]==check[i+8]&&check[i+8]!=result[i+8])))
                 {
                     check[i+20]=check[i+4];
                     check[i+4]=0;
                     repeat=0;
                     count++;
                 }
-                if(check[i]!=0&&(check[i+4]==0||(check[i]==check[i+4]&&check[i+4]!=result[i+4])))
+                if(check[i]>0&&(check[i+4]==0||(check[i]==check[i+4]&&check[i+4]!=result[i+4])))
                 {
                     check[i+16]=check[i];
                     check[i]=0;
@@ -752,27 +1140,209 @@ void game::keyPressEvent(QKeyEvent *event)
         enough();
         this->setFocus();
     }
-    else if(event->key()==Qt::Key_Left)
+    else if(event->key()==Qt::Key_Left||event->key()==Qt::Key_A)
     {
         this->clearFocus();
+        for(i=0;i<16;i+=4)
         {
-            for(i=0;i<16;i+=4)
+            int number[4]={0},total=0;
+            for(int j=i;j<i+4;j++)
             {
-                int number[4]={0},total=0;
-                for(int j=i;j<i+4;j++)
+                if(result[j]>0)
                 {
-                    if(result[j]!=0)
-                    {
-                        number[total]=result[j];
-                        total++;
-                    }
+                    number[total]=result[j];
+                    total++;
                 }
+            }
+            qDebug()<<i<<" "<<number[0]<<" "<<number[1]<<" "<<number[2]<<" "<<number[3]<<endl;
+
+            if(mode==0)
+            {
                 for(int j=i,k=0;k<total;j++,k++)
                     result[j]=number[k];
                 for(int j=i+3,k=0;k<4-total;j--,k++)
                     result[j]=0;
             }
-            for(i=0;i<16;i+=4)
+            else
+            {
+                amount=0;
+                int temp[4]={0};
+                for(int j=i;j<i+4;j++)
+                {
+                    if(result[j]==-1)
+                    {
+                        temp[amount]=j;
+                        amount++;
+                    }
+                }
+                if(amount==3||amount==4);
+                else if(amount==0)
+                {
+                    for(int j=i,k=0;k<total;j++,k++)
+                        result[j]=number[k];
+                    for(int j=i+3,k=0;k<4-total;j--,k++)
+                        result[j]=0;
+                }
+                else if(amount==1)
+                {
+                    if(temp[amount-1]==i)
+                    {
+                        for(int j=i+1;j<i+4;j++)
+                        {
+                            if(result[j]==0)
+                            {
+                                for(int k=j+1;k<i+4;k++)
+                                {
+                                    if(result[k]>0)
+                                    {
+                                        result[j]=result[k];
+                                        result[k]=0;
+                                    }
+                                }
+                            }
+                        }
+                        if(result[i+1]==result[i+2])
+                        {
+                            add_score(result[i+1]);
+                            result[i+1]*=2;
+                            result[i+2]=result[i+3];
+                            result[i+3]=0;
+                        }
+                        else if(result[i+2]==result[i+3])
+                        {
+                            add_score(result[i+2]);
+                            result[i+2]*=2;
+                            result[i+3]=0;
+                        }
+                        else{;}
+                    }
+                    else if(temp[amount-1]==i+1)
+                    {
+                        for(int j=i+2;j<i+4;j++)
+                        {
+                            if(result[j]==0)
+                            {
+                                for(int k=j+1;k<i+4;k++)
+                                {
+                                    if(result[k]>0)
+                                    {
+                                        result[j]=result[k];
+                                        result[k]=0;
+                                    }
+                                }
+                            }
+                        }
+                        if(result[i+2]==result[i+3])
+                        {
+                            add_score(result[i+2]);
+                            result[i+2]*=2;
+                            result[i+3]=0;
+                        }
+                    }
+                    else if(temp[amount-1]==i+2)
+                    {
+                        for(int j=i;j<i+2;j++)
+                        {
+                            if(result[j]==0)
+                            {
+                                for(int k=j+1;k<i+2;k++)
+                                {
+                                    if(result[k]>0)
+                                    {
+                                        result[j]=result[k];
+                                        result[k]=0;
+                                    }
+                                }
+                            }
+                        }
+                        if(result[i]==result[i+1])
+                        {
+                            add_score(result[i]);
+                            result[i]*=2;
+                            result[i+1]=0;
+                        }
+                    }
+                    else
+                    {
+                        for(int j=i;j<i+3;j++)
+                        {
+                            if(result[j]==0)
+                            {
+                                for(int k=j+1;k<i+3;k++)
+                                {
+                                    if(result[k]>0)
+                                    {
+                                        result[j]=result[k];
+                                        result[k]=0;
+                                    }
+                                }
+                            }
+                        }
+                        if(result[i]==result[i+1])
+                        {
+                            add_score(result[i]);
+                            result[i]*=2;
+                            result[i+1]=result[i+2];
+                            result[i+2]=0;
+                        }
+                        else if(result[i+1]==result[i+2])
+                        {
+                            add_score(result[i+1]);
+                            result[i+1]*=2;
+                            result[i+2]=0;
+                        }
+                        else{;}
+                    }
+                }
+                else
+                {
+                    if(temp[0]==i&&temp[1]==i+1)
+                    {
+                        if(result[i+2]==0&&result[i+3]!=0)
+                        {
+                            result[i+2]=result[i+3];
+                            result[i+3]=0;
+                        }
+                        if(result[i+2]==result[i+3])
+                        {
+                            add_score(result[i+2]);
+                            result[i+2]*=2;
+                            result[i+3]=0;
+                        }
+                    }
+                    else if(temp[0]==i&&temp[1]==i+3)
+                    {
+                        if(result[i+1]==0&&result[i+2]!=0)
+                        {
+                            result[i+1]=result[i+2];
+                            result[i+2]=0;
+                        }
+                        if(result[i+1]==result[i+2])
+                        {
+                            result[i+1]*=2;
+                            result[i+2]=0;
+                        }
+                    }
+                    else if(temp[0]==i+2&&temp[1]==i+3)
+                    {
+                        if(result[i]==0&&result[i+1]!=0)
+                        {
+                            result[i]=result[i+1];
+                            result[i+1]=0;
+                        }
+                        if(result[i]==result[i+1])
+                        {
+                            result[i]*=2;
+                            result[i+1]=0;
+                        }
+                    }
+                    else{;}
+                }
+            }
+            for(int p=0;p<16;p+=4)
+                qDebug()<<result[p]<<" "<<result[p+1]<<" "<<result[p+2]<<" "<<result[p+3];
+            qDebug()<<endl;
+            if(mode==0||amount==0)
             {
                 if(result[i]!=0&&result[i]==result[i+1])
                 {
@@ -783,7 +1353,7 @@ void game::keyPressEvent(QKeyEvent *event)
                         result[i]=2*result[i];
                         result[i+1]=2*result[i+2];
                         result[i+2]=0;
-                        result[i+3]=0;                        
+                        result[i+3]=0;
                     }
                     else
                     {
@@ -791,7 +1361,7 @@ void game::keyPressEvent(QKeyEvent *event)
                         result[i]=2*result[i];
                         result[i+1]=result[i+2];
                         result[i+2]=result[i+3];
-                        result[i+3]=0;                        
+                        result[i+3]=0;
                     }
                 }
                 else
@@ -801,7 +1371,7 @@ void game::keyPressEvent(QKeyEvent *event)
                         add_score(result[i+1]);
                         result[i+1]*=2;
                         result[i+2]=result[i+3];
-                        result[i+3]=0;                        
+                        result[i+3]=0;
                     }
                     else
                     {
@@ -809,96 +1379,278 @@ void game::keyPressEvent(QKeyEvent *event)
                         {
                             add_score(result[i+2]);
                             result[i+2]*=2;
-                            result[i+3]=0;                            
+                            result[i+3]=0;
                         }
                     }
                 }
             }
-            while(repeat==0)
+        }
+        while(repeat==0)
+        {
+            repeat=1;
+            time++;
+            for(int k=0,i=0;i<16;i+=4,k++)
             {
-                repeat=1;
-                time++;
-                for(int k=0,i=0;i<16;i+=4,k++)
+                if(check[i+1]>0&&(check[i]==0||(check[i+1]==check[i]&&check[i]!=result[i])))
                 {
-                    if(check[i+1]!=0&&(check[i]==0||(check[i+1]==check[i]&&check[i]!=result[i])))
-                    {
-                        check[i+28-k]=check[i+1];
-                        check[i+1]=0;
-                        repeat=0;
-                        count++;
-                    }
-                    if(check[i+2]!=0&&(check[i+1]==0||(check[i+2]==check[i+1]&&check[i+1]!=result[i+1])))
-                    {
-                        check[i+29-k]=check[i+2];
-                        check[i+2]=0;
-                        repeat=0;
-                        count++;
-                    }
-                    if(check[i+3]!=0&&(check[i+2]==0||(check[i+3]==check[i+2]&&check[i+2]!=result[i+2])))
-                    {
-                        check[i+30-k]=check[i+3];
-                        check[i+3]=0;
-                        repeat=0;
-                        count++;
-                    }
+                    check[i+28-k]=check[i+1];
+                    check[i+1]=0;
+                    repeat=0;
+                    count++;
                 }
-                if(count==0&&time==1)
+                if(check[i+2]>0&&(check[i+1]==0||(check[i+2]==check[i+1]&&check[i+1]!=result[i+1])))
                 {
-                    this->setFocus();
-                    return;
+                    check[i+29-k]=check[i+2];
+                    check[i+2]=0;
+                    repeat=0;
+                    count++;
+                }
+                if(check[i+3]>0&&(check[i+2]==0||(check[i+3]==check[i+2]&&check[i+2]!=result[i+2])))
+                {
+                    check[i+30-k]=check[i+3];
+                    check[i+3]=0;
+                    repeat=0;
+                    count++;
+                }
+            }
+            if(count==0&&time==1)
+            {
+                this->setFocus();
+                return;
+            }
+            elapse();
+            select_pic();
+            for(int k=0,i=0;i<16;i+=4,k++)
+            {
+                if(check[i+28-k]!=0)
+                {
+                    check[i]+=check[i+28-k];
+                    check[i+28-k]=0;
+                }
+                if(check[i+29-k]!=0)
+                {
+                    check[i+1]+=check[i+29-k];
+                    check[i+29-k]=0;
+                }
+                if(check[i+30-k]!=0)
+                {
+                    check[i+2]+=check[i+30-k];
+                    check[i+30-k]=0;
                 }
                 elapse();
                 select_pic();
-                for(int k=0,i=0;i<16;i+=4,k++)
-                {
-                    if(check[i+28-k]!=0)
-                    {
-                        check[i]+=check[i+28-k];
-                        check[i+28-k]=0;
-                    }
-                    if(check[i+29-k]!=0)
-                    {
-                        check[i+1]+=check[i+29-k];
-                        check[i+29-k]=0;
-                    }
-                    if(check[i+30-k]!=0)
-                    {
-                        check[i+2]+=check[i+30-k];
-                        check[i+30-k]=0;
-                    }
-                    elapse();
-                    select_pic();
-                }
             }
-            display_score();
-            random_generate();
-            select_pic();
-            judge();
-            enough();
-            this->setFocus();
         }
+        display_score();
+        random_generate();
+        select_pic();
+        judge();
+        enough();
+        this->setFocus();
     }
-    else if(event->key()==Qt::Key_Right)
+    else if(event->key()==Qt::Key_Right||event->key()==Qt::Key_D)
     {
         this->clearFocus();
+        for(i=0;i<16;i+=4)
         {
-            for(i=0;i<16;i+=4)
+            int number[4]={0},total=0;
+            for(int j=i+3;j>=i;j--)
             {
-                int number[4]={0},total=0;
-                for(int j=i+3;j>=i;j--)
+                if(result[j]>0)
                 {
-                    if(result[j]!=0)
-                    {
-                        number[total]=result[j];
-                        total++;
-                    }
+                    number[total]=result[j];
+                    total++;
                 }
+            }
+            if(mode==0)
+            {
                 for(int j=i+3,k=0;k<total;j--,k++)
                     result[j]=number[k];
                 for(int j=i,k=0;k<4-total;j++,k++)
                     result[j]=0;
             }
-            for(i=0;i<16;i+=4)
+            else
+            {
+                amount=0;
+                int temp[4]={0};
+                for(int j=i;j<i+4;j++)
+                {
+                    if(result[j]==-1)
+                    {
+                        temp[amount]=j;
+                        amount++;
+                    }
+                }
+                if(amount==3||amount==4);
+                else if(amount==0)
+                {
+                    for(int j=i+3,k=0;k<total;j--,k++)
+                        result[j]=number[k];
+                    for(int j=i,k=0;k<4-total;j++,k++)
+                        result[j]=0;
+                    for(int p=0;p<16;p+=4)
+                        qDebug()<<result[p]<<" "<<result[p+1]<<" "<<result[p+2]<<" "<<result[p+3];
+                    qDebug()<<endl;
+                }
+                else if(amount==1)
+                {
+                    if(temp[amount-1]==i)
+                    {
+                        for(int j=i+3;j>i;j--)
+                        {
+                            if(result[j]==0)
+                            {
+                                for(int k=j-1;k>i;k--)
+                                {
+                                    if(result[k]>0)
+                                    {
+                                        result[j]=result[k];
+                                        result[k]=0;
+                                    }
+                                }
+                            }
+                        }
+                        if(result[i+3]==result[i+2])
+                        {
+                            add_score(result[i+3]);
+                            result[i+3]*=2;
+                            result[i+2]=result[i+1];
+                            result[i+1]=0;
+                        }
+                        else if(result[i+2]==result[i+1])
+                        {
+                            add_score(result[i+2]);
+                            result[i+2]*=2;
+                            result[i+1]=0;
+                        }
+                        else{;}
+                    }
+                    else if(temp[amount-1]==i+1)
+                    {
+                        for(int j=i+3;j>i+1;j--)
+                        {
+                            if(result[j]==0)
+                            {
+                                for(int k=j-1;k>i+1;k--)
+                                {
+                                    if(result[k]>0)
+                                    {
+                                        result[j]=result[k];
+                                        result[k]=0;
+                                    }
+                                }
+                            }
+                        }
+                        if(result[i+3]==result[i+2])
+                        {
+                            add_score(result[i+3]);
+                            result[i+3]*=2;
+                            result[i+2]=0;
+                        }
+                    }
+                    else if(temp[amount-1]==i+2)
+                    {
+                        for(int j=i+1;j>=i;j--)
+                        {
+                            if(result[j]==0)
+                            {
+                                for(int k=j-1;k>=i;k--)
+                                {
+                                    if(result[k]>0)
+                                    {
+                                        result[j]=result[k];
+                                        result[k]=0;
+                                    }
+                                }
+                            }
+                        }
+                        if(result[i+1]==result[i])
+                        {
+                            add_score(result[i+1]);
+                            result[i+1]*=2;
+                            result[i]=0;
+                        }
+                    }
+                    else
+                    {
+                        for(int j=i+2;j>=i;j--)
+                        {
+                            if(result[j]==0)
+                            {
+                                for(int k=j-1;k>=i;k--)
+                                {
+                                    if(result[k]>0)
+                                    {
+                                        result[j]=result[k];
+                                        result[k]=0;
+                                    }
+                                }
+                            }
+                        }
+                        if(result[i+2]==result[i+1])
+                        {
+                            add_score(result[i+2]);
+                            result[i+2]*=2;
+                            result[i+1]=result[i];
+                            result[i]=0;
+                        }
+                        else if(result[i+1]==result[i])
+                        {
+                            add_score(result[i+1]);
+                            result[i+1]*=2;
+                            result[i]=0;
+                        }
+                        else{;}
+                    }
+                }
+                else
+                {
+                    if(temp[0]==i&&temp[1]==i+1)
+                    {
+                        if(result[i+3]==0&&result[i+2]!=0)
+                        {
+                            result[i+3]=result[i+2];
+                            result[i+2]=0;
+                        }
+                        if(result[i+3]==result[i+2])
+                        {
+                            add_score(result[i+3]);
+                            result[i+3]*=2;
+                            result[i+2]=0;
+                        }
+                    }
+                    else if(temp[0]==i&&temp[1]==i+3)
+                    {
+                        if(result[i+2]==0&&result[i+1]!=0)
+                        {
+                            result[i+2]=result[i+1];
+                            result[i+1]=0;
+                        }
+                        if(result[i+2]==result[i+1])
+                        {
+                            add_score(result[i+2]);
+                            result[i+2]*=2;
+                            result[i+1]=0;
+                        }
+                    }
+                    else if(temp[0]==i+2&&temp[1]==i+3)
+                    {
+                        if(result[i+1]==0&&result[i]!=0)
+                        {
+                            result[i+1]=result[i];
+                            result[i]=0;
+                        }
+                        if(result[i+1]==result[i])
+                        {
+                            add_score(result[i+1]);
+                            result[i+1]*=2;
+                            result[i]=0;
+                        }
+                    }
+                    else{;}
+                }
+            }
+            if(mode==0||amount==0)
             {
                 if(result[i+3]!=0&&result[i+3]==result[i+2])
                 {
@@ -909,7 +1661,7 @@ void game::keyPressEvent(QKeyEvent *event)
                         result[i+3]=2*result[i+3];
                         result[i+2]=2*result[i+1];
                         result[i+1]=0;
-                        result[i]=0;                        
+                        result[i]=0;
                     }
                     else
                     {
@@ -917,7 +1669,7 @@ void game::keyPressEvent(QKeyEvent *event)
                         result[i+3]=2*result[i+3];
                         result[i+2]=result[i+1];
                         result[i+1]=result[i];
-                        result[i]=0;                        
+                        result[i]=0;
                     }
                 }
                 else
@@ -927,7 +1679,7 @@ void game::keyPressEvent(QKeyEvent *event)
                         add_score(result[i+2]);
                         result[i+2]*=2;
                         result[i+1]=result[i];
-                        result[i]=0;                        
+                        result[i]=0;
                     }
                     else
                     {
@@ -935,74 +1687,74 @@ void game::keyPressEvent(QKeyEvent *event)
                         {
                             add_score(result[i+1]);
                             result[i+1]*=2;
-                            result[i]=0;                            
+                            result[i]=0;
                         }
                     }
                 }
             }
-            while(repeat==0)
+        }
+        while(repeat==0)
+        {
+            repeat=1;
+            time++;
+            for(int k=0,i=0;i<16;i+=4,k++)
             {
-                repeat=1;
-                time++;
-                for(int k=0,i=0;i<16;i+=4,k++)
+                if(check[i+2]>0&&(check[i+3]==0||(check[i+2]==check[i+3]&&check[i+3]!=result[i+3])))
                 {
-                    if(check[i+2]!=0&&(check[i+3]==0||(check[i+2]==check[i+3]&&check[i+3]!=result[i+3])))
-                    {
-                        check[i+30-k]=check[i+2];
-                        check[i+2]=0;
-                        repeat=0;
-                        count++;
-                    }
-                    if(check[i+1]!=0&&(check[i+2]==0||(check[i+1]==check[i+2]&&check[i+2]!=result[i+2])))
-                    {
-                        check[i+29-k]=check[i+1];
-                        check[i+1]=0;
-                        repeat=0;
-                        count++;
-                    }
-                    if(check[i]!=0&&(check[i+1]==0||(check[i]==check[i+1]&&check[i+1]!=result[i+1])))
-                    {
-                        check[i+28-k]=check[i];
-                        check[i]=0;
-                        repeat=0;
-                        count++;
-                    }
+                    check[i+30-k]=check[i+2];
+                    check[i+2]=0;
+                    repeat=0;
+                    count++;
                 }
-                if(count==0&&time==1)
+                if(check[i+1]>0&&(check[i+2]==0||(check[i+1]==check[i+2]&&check[i+2]!=result[i+2])))
                 {
-                    this->setFocus();
-                    return;
+                    check[i+29-k]=check[i+1];
+                    check[i+1]=0;
+                    repeat=0;
+                    count++;
+                }
+                if(check[i]>0&&(check[i+1]==0||(check[i]==check[i+1]&&check[i+1]!=result[i+1])))
+                {
+                    check[i+28-k]=check[i];
+                    check[i]=0;
+                    repeat=0;
+                    count++;
+                }
+            }
+            if(count==0&&time==1)
+            {
+                this->setFocus();
+                return;
+            }
+            elapse();
+            select_pic();
+            for(int k=0,i=0;i<16;i+=4,k++)
+            {
+                if(check[i+30-k]!=0)
+                {
+                    check[i+3]+=check[i+30-k];
+                    check[i+30-k]=0;
+                }
+                if(check[i+29-k]!=0)
+                {
+                    check[i+2]+=check[i+29-k];
+                    check[i+29-k]=0;
+                }
+                if(check[i+28-k]!=0)
+                {
+                    check[i+1]+=check[i+28-k];
+                    check[i+28-k]=0;
                 }
                 elapse();
                 select_pic();
-                for(int k=0,i=0;i<16;i+=4,k++)
-                {
-                    if(check[i+30-k]!=0)
-                    {
-                        check[i+3]+=check[i+30-k];
-                        check[i+30-k]=0;
-                    }
-                    if(check[i+29-k]!=0)
-                    {
-                        check[i+2]+=check[i+29-k];
-                        check[i+29-k]=0;
-                    }
-                    if(check[i+28-k]!=0)
-                    {
-                        check[i+1]+=check[i+28-k];
-                        check[i+28-k]=0;
-                    }
-                    elapse();
-                    select_pic();
-                }
             }
-            display_score();
-            random_generate();
-            select_pic();
-            judge();
-            enough();
-            this->setFocus();
         }
+        display_score();
+        random_generate();
+        select_pic();
+        judge();
+        enough();
+        this->setFocus();
     }
     else
         return;
@@ -1010,7 +1762,7 @@ void game::keyPressEvent(QKeyEvent *event)
 
 void game::select_pic()
 {
-    if(a==0)
+    if(icon==0)
     {
         label_1->setPixmap(QPixmap(":/back/base_" + QString::number(check[0]) + "_normal.png"));
         label_2->setPixmap(QPixmap(":/back/base_" + QString::number(check[1]) + "_normal.png"));
@@ -1490,11 +2242,6 @@ void game::elapse()
         QCoreApplication::processEvents();
 }
 
-void game::set_a(int b)
-{
-    a=b;
-}
-
 void game::judge()
 {
     for(int i=0;i<16;i++)
@@ -1504,22 +2251,22 @@ void game::judge()
     {
         if(i-4>=0)
         {
-           if(check[i-4]==check[i])
+           if(check[i-4]==check[i]&&check[i-4]!=-1)
                return;
         }
         if(i+4<16)
         {
-            if(check[i+4]==check[i])
+            if(check[i+4]==check[i]&&check[i+4]!=-1)
                 return;
         }
         if(i%4!=0)
         {
-            if(check[i-1]==check[i])
+            if(check[i-1]==check[i]&&check[i-1]!=-1)
                 return;
         }
         if((i+1)%4!=0)
         {
-            if(check[i+1]==check[i])
+            if(check[i+1]==check[i]&&check[i+1]!=-1)
                 return;
         }
     }
@@ -1536,8 +2283,8 @@ void game::judge()
     QFont f;
     f.setFamily("Jokerman");
     QLabel *text_1=new QLabel;
-    text_1->setText("<h2><font color=red><center>NO MORE MOVES!!</center></font></h2>");
-    text_1->setFont(f);
+    text_1->setPixmap(QPixmap(":/back/defeat.png"));
+    text_1->setScaledContents(true);
     QLabel *text_2=new QLabel;
     text_2->setText("<center>Enter your name</center>");
     text_2->setFont(f);
@@ -1550,6 +2297,7 @@ void game::judge()
     layout->addWidget(button_restart,3,0,1,2);
     layout->addWidget(button_quit,3,2,1,2);
     end->setLayout(layout);
+    end->setFixedSize(400,400);
     end->exec();
 }
 
@@ -1560,7 +2308,7 @@ void game::restart()
     db.setDatabaseName("Score.dat");
     db.open();
     QSqlQuery query(db);
-    QString str="INSERT INTO rank (Name,Score) VALUES('"+ text_name->text()+ "','" + s +"')";
+    QString str="INSERT INTO rank (Name,Score) VALUES('"+ text_name->text()+ "', "+ s +")";
     query.prepare(str);
     query.exec();
     db.close();
@@ -1569,8 +2317,14 @@ void game::restart()
     set_score();
     set_once();
     display_score();
-    select_pic();
+    if(mode!=0)
+    {
+        select_forbid();
+        window->dim_blocks->setDisabled(true);
+        window->add_blocks->setEnabled(true);
+    }
     random_generate_for_begin();
+    select_pic();
     this->setFocus();
 }
 
@@ -1599,7 +2353,7 @@ void game::quit_with_name()
         db.setDatabaseName("Score.dat");
         db.open();
         QSqlQuery query(db);
-        QString str="INSERT INTO rank (Name,Score) VALUES('"+ text_name->text()+ "','" + s +"')";
+        QString str="INSERT INTO rank (Name,Score) VALUES('"+ text_name->text()+ "'," + s +")";
         query.prepare(str);
         query.exec();
         db.close();
@@ -1621,18 +2375,16 @@ void game::restart_for_menu()
         set_once();
         display_score();
         select_pic();
+        if(mode!=0)
+        {
+            select_forbid();
+            window->dim_blocks->setDisabled(true);
+            window->add_blocks->setEnabled(true);
+        }
         random_generate_for_begin();
+        select_pic();
         this->setFocus();
     }
-}
-
-void game::change_model()
-{
-    if(a==0)
-        a=1;
-    else
-        a=0;
-    select_pic();
 }
 
 void game::add_score(int b)
@@ -1673,8 +2425,8 @@ void game::enough()
     QFont f;
     f.setFamily("Jokerman");
     QLabel *text_1=new QLabel;
-    text_1->setText("<h2><font color=red><center>Victory!!</center></font></h2>");
-    text_1->setFont(f);
+    text_1->setPixmap(QPixmap(":/back/victory.png"));
+    text_1->setScaledContents(true);
     QLabel *text_2=new QLabel;
     text_2->setText("<center>Enter your name</center>");
     text_2->setFont(f);
@@ -1687,5 +2439,131 @@ void game::enough()
     layout->addWidget(button_continue,3,0,1,2);
     layout->addWidget(button_quit,3,2,1,2);
     end->setLayout(layout);
+    end->setFixedSize(400,400);
     end->exec();
+}
+
+void game::select_forbid()
+{
+    srand(time(NULL));
+    int i=rand()%16;
+    check[i]=-1;
+}
+
+void game::set_icon_normal()
+{
+    icon=0;
+    select_pic();
+}
+
+void game::set_icon_differ()
+{
+    icon=1;
+    select_pic();
+}
+
+void game::set_mode_normal()
+{
+    QMediaPlayer *warning=new QMediaPlayer;
+    warning->setMedia(QUrl("qrc:/music/warning.mp3"));
+    warning->play();
+    QMessageBox message(QMessageBox::NoIcon,"Quit","<h2>Are you sure you want to change to normal mode?It will restart the game!</h2>",QMessageBox::Yes | QMessageBox::No);
+    message.setIconPixmap(QPixmap(":/back/warning.jpg"));
+    if(message.exec() == QMessageBox::Yes)
+    {
+        window->set_blocks_invisible();
+        mode=0;
+        set_check();
+        set_score();
+        set_once();
+        display_score();
+        select_pic();
+        if(mode!=0)
+        {
+            select_forbid();
+            window->dim_blocks->setDisabled(true);
+            window->add_blocks->setEnabled(true);
+        }
+        random_generate_for_begin();
+        select_pic();
+        this->setFocus();
+    }
+}
+
+void game::set_mode_block()
+{
+    QMediaPlayer *warning=new QMediaPlayer;
+    warning->setMedia(QUrl("qrc:/music/warning.mp3"));
+    warning->play();
+    QMessageBox message(QMessageBox::NoIcon,"Quit","<h2>Are you sure you want to change to block mode?It will restart the game!</h2>",QMessageBox::Yes | QMessageBox::No);
+    message.setIconPixmap(QPixmap(":/back/warning.jpg"));
+    if(message.exec() == QMessageBox::Yes)
+    {
+        window->set_blocks_visible();
+        mode=1;
+        set_check();
+        set_score();
+        set_once();
+        display_score();
+        select_pic();
+        if(mode!=0)
+        {
+            select_forbid();
+            window->dim_blocks->setDisabled(true);
+            window->add_blocks->setEnabled(true);
+        }
+        random_generate_for_begin();
+        select_pic();
+        this->setFocus();
+    }
+}
+
+void game::add_block()
+{
+    int total=0,place[16]={0};
+    window->dim_blocks->setEnabled(true);
+    for(int i=0;i<16;i++)
+    {
+        if(check[i]==0)
+        {
+            place[total]=i;
+            total++;
+        }
+    }
+    srand(time(NULL));
+    int a=rand()%total;
+    check[place[a]]=-1;
+    select_pic();
+    total=0;
+    for(int i=0;i<16;i++)
+        if(check[i]==0)
+            total++;
+    if(total==0)
+        window->add_blocks->setDisabled(true);
+    judge();
+}
+
+void game::dim_block()
+{
+    int total=0,place[16]={0};
+    window->add_blocks->setEnabled(true);
+    for(int i=0;i<16;i++)
+    {
+        if(check[i]==-1)
+        {
+            place[total]=i;
+            total++;
+        }
+    }
+    srand(time(NULL));
+    int a=rand()%total;
+    check[place[a]]=0;
+    select_pic();
+    total=0;
+    for(int i=0;i<16;i++)
+        if(check[i]==-1)
+            total++;
+    if(total<2)
+        window->dim_blocks->setDisabled(true);
+    judge();
 }
