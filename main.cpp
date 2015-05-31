@@ -7,7 +7,7 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     MainWindow w;
     QDesktopWidget dw;
-    int width=dw.width()*0.75;
+    int width=dw.width()*0.75;//設定視窗初始大小
     int height=dw.height()*0.75;
     if(width>height)
         width=height;

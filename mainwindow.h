@@ -30,15 +30,15 @@ class MainWindow : public QMainWindow
     Q_OBJECT
     friend class game;
 public:
-    explicit MainWindow(QWidget *parent = 0);
+    explicit MainWindow(QWidget *parent = 0);//設定初始mainwindow格式
     ~MainWindow();
-    void set_restart_visible();
-    void set_blocks_visible();
-    void set_blocks_invisible();
+    void set_restart_visible();//設定選單列的restart顯示
+    void set_blocks_visible();//設定選單列的block顯示
+    void set_blocks_invisible();//設定選單列的block隱藏
 
 public slots:
-    void quit();
-    void view_rank();
+    void quit();//選單列的quit 程式結束
+    void view_rank();//打開rank資料庫
 
 private:
     QAction *Restart;

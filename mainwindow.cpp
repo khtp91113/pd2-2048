@@ -4,6 +4,7 @@
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
 {
+    //製作選單列
     QMenu *menu=new QMenu("&Options");
     Restart=new QAction("Restart",this);
     Rank=new QAction("Rank",this);
@@ -64,6 +65,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::quit()
 {
+    //選單列的quit 跳出警告視窗
     QMediaPlayer *warning=new QMediaPlayer;
     warning->setMedia(QUrl("qrc:/music/warning.mp3"));
     warning->play();
@@ -75,6 +77,7 @@ void MainWindow::quit()
 
 void MainWindow::view_rank()
 {
+    //建立rank資料庫
     rank *k=new rank;
 }
 

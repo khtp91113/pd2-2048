@@ -2,6 +2,7 @@
 
 game::game(QWidget *parent) : QWidget(parent)
 {
+    //製作開始畫面
     QFont f;
     QLabel *title=new QLabel;
     title->setText("<h2><font color=red><center>2048</center></font></h2>");
@@ -42,6 +43,7 @@ game::~game()
 
 void game::button_quit_click()
 {
+    //警告視窗
     QMediaPlayer *warning=new QMediaPlayer;
     warning->setMedia(QUrl("qrc:/music/warning.mp3"));
     warning->play();
@@ -53,6 +55,7 @@ void game::button_quit_click()
 
 void game::button_start_click()
 {
+    //刪除舊的排版 創新的也就是創立遊戲畫面
     qDeleteAll(this->children());
     image.load(":/back/back.jpg");
     setAutoFillBackground(true);
@@ -190,6 +193,7 @@ void game::button_start_click()
     layout->addWidget(label_15_16,13,9,2,2);
     layout->addWidget(frame,7,4,8,8);
     this->setLayout(layout);
+    //設定圖片和模式
     frame->lower();
     window->set_restart_visible();
     connect(window->Restart,SIGNAL(triggered()),this,SLOT(restart_for_menu()));
@@ -216,6 +220,7 @@ void game::button_start_click()
 
 void game::resizeEvent(QResizeEvent *event)
 {
+    //視窗resize背景跟著縮放
     QWidget::resizeEvent(event);
     QPalette pal(palette());
     pal.setBrush(QPalette::Window,QBrush(image.scaled(event->size(),Qt::IgnoreAspectRatio,Qt::SmoothTransformation)));
@@ -224,6 +229,7 @@ void game::resizeEvent(QResizeEvent *event)
 
 void game::game_start()
 {
+    //開始畫面 將所有數值初始化
     set_check();
     set_score();
     set_once();
@@ -235,8 +241,6 @@ void game::game_start()
         window->add_blocks->setEnabled(true);
     }
     random_generate_for_begin();
-    check[14]=1024;
-    check[15]=1024;
     select_pic();
     this->setFocus();
 }
@@ -254,6 +258,7 @@ void game::set_once()
 
 void game::random_generate_for_begin()
 {
+    //隨機產生兩個圖片
     QString path_base2;
     if(icon==0)
         path_base2=":/back/base_2_normal.png";
@@ -384,6 +389,7 @@ void game::random_generate_for_begin()
 
 void game::random_generate()
 {
+    //隨機產生新的圖片
     QString path_base2;
     QString path_base4;
     if(icon==0)
@@ -527,12 +533,13 @@ void game::random_generate()
 
 void game::keyPressEvent(QKeyEvent *event)
 {
+    //上下左右 直接把規則寫完
     int i,repeat=0,count=0,amount=0,time=0,result[16]={0};
     for(i=0;i<16;i++)
         result[i]=check[i];
     if(event->key()==Qt::Key_Up||event->key()==Qt::Key_W)
     {
-        this->clearFocus();
+        this->clearFocus();//設定成按按鍵沒反應直到跑完才在setfocus
         for(i=0;i<4;i++)
         {
 
@@ -801,7 +808,7 @@ void game::keyPressEvent(QKeyEvent *event)
                     count++;
                 }
             }
-            if(count==0&&time==1)
+            if(count==0&&time==1)//判斷是否有動作 沒有的話return
             {
                 this->setFocus();
                 return;
@@ -832,7 +839,7 @@ void game::keyPressEvent(QKeyEvent *event)
         display_score();
         random_generate();
         select_pic();
-        judge();
+        judge();//判斷還能不能移動
         enough();
         this->setFocus();
     }
@@ -1154,8 +1161,6 @@ void game::keyPressEvent(QKeyEvent *event)
                     total++;
                 }
             }
-            qDebug()<<i<<" "<<number[0]<<" "<<number[1]<<" "<<number[2]<<" "<<number[3]<<endl;
-
             if(mode==0)
             {
                 for(int j=i,k=0;k<total;j++,k++)
@@ -1339,9 +1344,6 @@ void game::keyPressEvent(QKeyEvent *event)
                     else{;}
                 }
             }
-            for(int p=0;p<16;p+=4)
-                qDebug()<<result[p]<<" "<<result[p+1]<<" "<<result[p+2]<<" "<<result[p+3];
-            qDebug()<<endl;
             if(mode==0||amount==0)
             {
                 if(result[i]!=0&&result[i]==result[i+1])
@@ -1488,9 +1490,6 @@ void game::keyPressEvent(QKeyEvent *event)
                         result[j]=number[k];
                     for(int j=i,k=0;k<4-total;j++,k++)
                         result[j]=0;
-                    for(int p=0;p<16;p+=4)
-                        qDebug()<<result[p]<<" "<<result[p+1]<<" "<<result[p+2]<<" "<<result[p+3];
-                    qDebug()<<endl;
                 }
                 else if(amount==1)
                 {
@@ -2270,6 +2269,7 @@ void game::judge()
                 return;
         }
     }
+    //若不能移動就跳出視窗
     QMediaPlayer *lose=new QMediaPlayer;
     lose->setMedia(QUrl("qrc:/music/lose.mp3"));
     lose->play();
@@ -2303,6 +2303,7 @@ void game::judge()
 
 void game::restart()
 {
+    //gameover 存名字分數重新開始遊戲
     QString s=QString::number(your_score);
     QSqlDatabase db=QSqlDatabase::addDatabase("QSQLITE");
     db.setDatabaseName("Score.dat");
@@ -2330,6 +2331,7 @@ void game::restart()
 
 void game::quit()
 {
+    //quit跳出警告視窗
     QMediaPlayer *warning=new QMediaPlayer;
     warning->setMedia(QUrl("qrc:/music/warning.mp3"));
     warning->play();
@@ -2341,6 +2343,7 @@ void game::quit()
 
 void game::quit_with_name()
 {
+    //已達成2048 跳出時的警告視窗 但跳出還是會存名字和分數
     QMediaPlayer *warning=new QMediaPlayer;
     warning->setMedia(QUrl("qrc:/music/warning.mp3"));
     warning->play();
@@ -2363,6 +2366,7 @@ void game::quit_with_name()
 
 void game::restart_for_menu()
 {
+    //選單列的restart 跳出警告視窗
     QMediaPlayer *warning=new QMediaPlayer;
     warning->setMedia(QUrl("qrc:/music/warning.mp3"));
     warning->play();
@@ -2405,6 +2409,7 @@ void game::display_score()
 
 void game::enough()
 {
+    //第一次合出2048跳出視窗 問要不要繼續
     int back=1;
     for(int i=0;i<16;i++)
         if(check[i]==2048)
@@ -2445,6 +2450,7 @@ void game::enough()
 
 void game::select_forbid()
 {
+    //選擇障礙格子
     srand(time(NULL));
     int i=rand()%16;
     check[i]=-1;
@@ -2464,6 +2470,7 @@ void game::set_icon_differ()
 
 void game::set_mode_normal()
 {
+    //切換模式 跳出警告視窗 重新遊戲
     QMediaPlayer *warning=new QMediaPlayer;
     warning->setMedia(QUrl("qrc:/music/warning.mp3"));
     warning->play();
@@ -2492,6 +2499,7 @@ void game::set_mode_normal()
 
 void game::set_mode_block()
 {
+    //切換模式 跳出警告視窗 重新遊戲
     QMediaPlayer *warning=new QMediaPlayer;
     warning->setMedia(QUrl("qrc:/music/warning.mp3"));
     warning->play();
@@ -2520,6 +2528,7 @@ void game::set_mode_block()
 
 void game::add_block()
 {
+    //增加障礙
     int total=0,place[16]={0};
     window->dim_blocks->setEnabled(true);
     for(int i=0;i<16;i++)
@@ -2539,12 +2548,13 @@ void game::add_block()
         if(check[i]==0)
             total++;
     if(total==0)
-        window->add_blocks->setDisabled(true);
+        window->add_blocks->setDisabled(true);//當沒有空格時 不能增加
     judge();
 }
 
 void game::dim_block()
 {
+    //減少障礙
     int total=0,place[16]={0};
     window->add_blocks->setEnabled(true);
     for(int i=0;i<16;i++)
@@ -2564,6 +2574,6 @@ void game::dim_block()
         if(check[i]==-1)
             total++;
     if(total<2)
-        window->dim_blocks->setDisabled(true);
+        window->dim_blocks->setDisabled(true);//當障礙格子數只剩一格時 不能減少
     judge();
 }

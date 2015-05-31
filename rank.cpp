@@ -3,6 +3,7 @@
 rank::rank(QWidget *parent) :
     QDialog(parent)
 {
+     //建立資料庫
      QSqlDatabase db=QSqlDatabase::addDatabase("QSQLITE");
      db.setDatabaseName("Score.dat");
      db.open();

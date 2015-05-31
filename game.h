@@ -33,41 +33,41 @@ class game : public QWidget
 {
     Q_OBJECT
 public:
-    explicit game(QWidget *parent = 0);
+    explicit game(QWidget *parent = 0);//設定開始畫面
     ~game();
-    void game_start();
-    void set_check();
-    void random_generate();
-    void select_pic();
-    void judge();
-    void elapse();
-    void getmain(MainWindow &w);
-    void random_generate_for_begin();
-    void add_score(int b);
-    void set_score();
-    void display_score();
-    void enough();
-    void set_once();
-    void select_forbid();
+    void game_start();//初始遊戲畫面
+    void set_check();//把check值歸0
+    void random_generate();//隨機產生數字2或4
+    void select_pic();//更新圖片
+    void judge();//判斷是否gameover
+    void elapse();//切換圖片的時間延遲 使看起來比較像動畫一點..
+    void getmain(MainWindow &w);//抓取mainwindow的位置
+    void random_generate_for_begin();//一開始的隨機產生數字*2
+    void add_score(int b);//加分機制
+    void set_score();//把分數歸0
+    void display_score();//顯示得分
+    void enough();//第一個2048出現時跳出視窗
+    void set_once();//把once歸0
+    void select_forbid();//障礙模式中 選擇一個格子當障礙
 
 protected:
-    void resizeEvent(QResizeEvent *event);
-    void keyPressEvent(QKeyEvent *event);
+    void resizeEvent(QResizeEvent *event);//視窗放大縮小 圖片跟著同步縮放
+    void keyPressEvent(QKeyEvent *event);//按鍵事件
 signals:
 
 public slots:
-    void button_quit_click();
-    void button_start_click();
-    void restart();
-    void quit();
-    void restart_for_menu();
-    void quit_with_name();
-    void set_icon_normal();
-    void set_icon_differ();
-    void set_mode_normal();
-    void set_mode_block();
-    void add_block();
-    void dim_block();
+    void button_quit_click();//開始畫面的quit button設定
+    void button_start_click();//開始畫面的start button設定
+    void restart();//重新開始遊戲
+    void quit();//結束遊戲
+    void restart_for_menu();//選單列的restart 設定
+    void quit_with_name();//出現2048時 跳出的視窗即使案quit也會存名字和分數
+    void set_icon_normal();//把圖片設為正常
+    void set_icon_differ();//把圖片設為十二生肖
+    void set_mode_normal();//把模式設為正常
+    void set_mode_block();//把模式設為障礙模式
+    void add_block();//增加障礙
+    void dim_block();//減少障礙
 private:
     MainWindow *window;
     QImage image;
@@ -118,9 +118,8 @@ private:
     QLineEdit *text_name;
     QLCDNumber *score;
     int your_score;
-    int once;
+    int once;//用來記錄是否是第一次出現2048
     int mode;
-    int when;
 };
 
 #endif // GAME_H
